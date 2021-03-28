@@ -31,7 +31,7 @@ class Location:
     name: str
     location: tuple[float, float]
     rating: float
-    opening_times: dict[str: tuple[datetime.time, datetime.time]]
+    opening_times: dict[str, tuple[datetime.time, datetime.time]]
     time_spent: datetime.timedelta
 
 
