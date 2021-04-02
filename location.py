@@ -30,9 +30,7 @@ class Location:
     """
     name: str
     location: tuple[float, float]
-    rating: float
     opening_times: dict[str, tuple[datetime.time, datetime.time]]
-    time_spent: datetime.timedelta
 
 
 @dataclass
@@ -44,17 +42,9 @@ class Landmark(Location):
 
     Representation Invariants:
         - self.type in {'historical', 'natural', 'entertainment', 'leisure'}
-
-    >>> eiffel_tower = Landmark('Eiffel Tower', (48.858093, 2.294694), 4.6, \
-        {'Sunday': (datetime.time(9, 0), datetime.time(23, 45)), \
-        'Monday': (datetime.time(9, 0), datetime.time(23, 45)), \
-        'Tuesday': (datetime.time(9, 0), datetime.time(23, 45)), \
-        'Wednesday': (datetime.time(9, 0), datetime.time(23, 45)), \
-        'Thursday': (datetime.time(9, 0), datetime.time(23, 45)), \
-        'Friday': (datetime.time(9, 0), datetime.time(23, 45)), \
-        'Saturday': (datetime.time(9, 0), datetime.time(23, 45)) \
-        }, datetime.timedelta(minutes=45), 'historical')
     """
+    rating: float
+    time_spent: datetime.timedelta
     type: str
 
 
@@ -69,6 +59,8 @@ class Restaurant(Location):
     Representation Invariants:
         - self.menu_type.isalpha()
     """
+    rating: float
+    time_spent: datetime.timedelta
     menu_type: str
 
 
