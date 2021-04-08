@@ -170,8 +170,9 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
 
         # add subway vertices
         for subway in subway_reader:
-            name, location, opening_time, subway_line = subway
-            new_subway = SubwayStation(name, location, opening_time, subway_line)
+            _, name, lat, lon = subway
+            new_subway = SubwayStation(name, (lat, lon))
+
             city_graph.add_vertex(new_subway)
 
         # add hotel
@@ -193,29 +194,42 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
     return city_graph
 
 
-def load_subway_graph(subway_file: str) -> SubwayLines:
+def load_subway_graph(subway_file: str, subway_lines_file: str) -> SubwayLines:
     """Return a graph representing the subway network of the city.
 
     Stations are connected together if they are along the same line.
 
     Preconditions:
         - subway_file is a CSV file corresponding to the subway stations in the city
+        - subway_lines_file is a CSV file detailing how the stations are linked together
     """
     # initialize the graph
     subway_graph = SubwayLines()
 
-    with open(subway_file) as subways:
+    with open(subway_file) as subways, open(subway_lines_file) as lines:
         # csv reader
         subway_reader = csv.reader(subways)
+        lines_reader = csv.reader(lines)
+
+        ids_to_objects = {}  # accumulator
 
         # add vertices
         for subway in subway_reader:
-            name, location, opening_time, subway_line = subway
-            new_subway = SubwayStation(name, location, opening_time, subway_line)
+            station_id, name, lat, lon = subway
+            new_subway = SubwayStation(name, (lat, lon))
+
             subway_graph.add_vertex(new_subway)
+            ids_to_objects[station_id] = new_subway
 
         # add edges
-        # TODO: figure out how to connect two stations
+        for row in lines_reader:
+            # get the stations corresponding to those three ids
+            station1 = ids_to_objects[row[0]]
+            station2 = ids_to_objects[row[1]]
+            station3 = ids_to_objects[row[2]]
+
+            subway_graph.add_edge(station1, station2)
+            subway_graph.add_edge(station1, station3)
 
     return subway_graph
 

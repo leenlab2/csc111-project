@@ -30,7 +30,6 @@ class Location:
     """
     name: str
     location: tuple[float, float]
-    opening_times: dict[str, tuple[datetime.time, datetime.time]]
 
 
 @dataclass
@@ -43,6 +42,7 @@ class Landmark(Location):
     Representation Invariants:
         - self.type in {'historical', 'natural', 'entertainment', 'leisure'}
     """
+    opening_times: dict[str, tuple[datetime.time, datetime.time]]
     rating: float
     time_spent: datetime.timedelta
     type: str
@@ -59,6 +59,7 @@ class Restaurant(Location):
     Representation Invariants:
         - self.menu_type.isalpha()
     """
+    opening_times: dict[str, tuple[datetime.time, datetime.time]]
     rating: float
     time_spent: datetime.timedelta
     menu_type: str
@@ -77,11 +78,7 @@ class Hotel(Location):
 @dataclass
 class SubwayStation(Location):
     """A subway station in the city
-
-    Instance Attributes:
-        - subway_line: which line(s) this station is connected to
     """
-    subway_line: set[str]
 
 
 if __name__ == "__main__":
