@@ -71,10 +71,40 @@ class Graph:
         else:
             raise ValueError
 
+    def adjacent(self, item1: Location, item2: Location) -> bool:
+        """Return whether item1 and item2 are adjacent vertices in this graph.
+
+        Return False if item1 or item2 do not appear as vertices in this graph.
+        """
+        if item1 in self._vertices and item2 in self._vertices:
+            v1 = self._vertices[item1]
+            return any(v2.item == item2 for v2 in v1.neighbours)
+        else:
+            return False
+
+    def get_vertex(self, vertex: Location) -> _Vertex:
+        """Returns the vertex searched for.
+        """
+        return self._vertices[vertex]
+
+    def get_neighbors(self, vertex: Location) -> set:
+        """Returns set of neighbors from given vertex
+        """
+        return self._vertices[vertex].neighbours
+
 
 class CityLocations(Graph):
     """A graph representing all the locations in the city and how close they are to each other.
+
+    Instance Attributes:
+        - hotel: the hotel that the user is staying at
     """
+    hotel: Optional[Hotel]
+
+    def __init__(self) -> None:
+        """Initialize an empty graph (no vertices or edges)."""
+        Graph.__init__(self)
+        self.hotel = None
 
     def get_all_vertices(self, kind: Optional[Callable] = None) -> set:
         """Return a set of all vertex items in this graph.
@@ -96,7 +126,11 @@ class SubwayLines(Graph):
     Representation Invariants:
         - all(isinstance(self._vertices[v].item, SubwayStation) for v in self._vertices)
     """
-    # TODO add subway specific methods
+
+    def get_all_vertices(self) -> set:
+        """Return a set of all vertex items in this graph.
+        """
+        return set(self._vertices.keys())
 
 
 def get_distance(l1: Location, l2: Location) -> float:
@@ -177,6 +211,7 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
 
         # add hotel
         city_graph.add_vertex(hotel)
+        city_graph.hotel = hotel
 
         vertices = list(city_graph.get_all_vertices())
         for i in range(0, len(vertices)):
