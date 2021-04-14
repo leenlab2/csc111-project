@@ -15,18 +15,10 @@ class Location:
     Instance Attributes:
         - name: the name of the location
         - location: the geographical location in (latitude, longitude)
-        - rating: the average rating given to this location by reviewers
-        - opening_times: a dictionary mapping from a day of the week to the range of time it is open
-            for on that day. It only includes days the location is open on.
-        - time_spent: the average time spent at this location
 
     Representation Invariants:
         - -90 <= self.location[0] <= 90
         - -180 <= self.location[1] <= 180
-        - 0 <= self.rating <= 5
-        - all(day in {'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'}
-            for day in self.opening_times)
-        - datetime.timedelta(0) <= self.time_spent <= datetime.timedelta(hours=24)
     """
     name: str
     location: tuple[float, float]
@@ -37,10 +29,18 @@ class Landmark(Location):
     """A historical landmark or popular form of entertainment in the city.
 
     Instance Attributes:
+        - opening_times: a dictionary mapping from a day of the week to the range of time it is open
+            for on that day. It only includes days the location is open on.
+        - rating: the average rating given to this location by reviewers
+        - time_spent: the average time spent at this location
         - type: what type of landmark this is, from our abstract definition of a landmark
 
     Representation Invariants:
         - self.type in {'historical', 'natural', 'entertainment', 'leisure'}
+        - all(day in {'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'}
+            for day in self.opening_times)
+        - 0 <= self.rating <= 5
+        - datetime.timedelta(0) <= self.time_spent <= datetime.timedelta(hours=24)
     """
     opening_times: dict[str, tuple[datetime.time, datetime.time]]
     rating: float
@@ -53,16 +53,21 @@ class Restaurant(Location):
     """A restaurant in the city
 
     Instance Attributes:
-        - menu_type: the type of food on the menu. This could be a cuisine, or something like
-            'seafood' that indicates the food itself.
+        - opening_times: a dictionary mapping from a day of the week to the range of time it is open
+            for on that day. It only includes days the location is open on.
+        - rating: the average rating given to this location by reviewers
+        - time_spent: the average time spent at this location
 
     Representation Invariants:
         - self.menu_type.isalpha()
+        - all(day in {'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'}
+            for day in self.opening_times)
+        - 0 <= self.rating <= 5
+        - datetime.timedelta(0) <= self.time_spent <= datetime.timedelta(hours=24)
     """
     opening_times: dict[str, tuple[datetime.time, datetime.time]]
     rating: float
     time_spent: datetime.timedelta
-    menu_type: str
 
 
 @dataclass
