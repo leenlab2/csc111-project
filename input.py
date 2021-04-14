@@ -4,7 +4,7 @@ locations they want to visit.
 
 This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
 """
-from tkinter import *  # FIXME: it's better not to use the asterisk, just import tkinter -PyTA
+import tkinter  # FIXME: it's better not to use the asterisk, just import tkinter -PyTA
 from tkinter.ttk import Combobox
 import datetime
 
@@ -12,30 +12,31 @@ import datetime
 class PopUp:
     """ A Tk object used to preset the windows popup settings, display and functions.
     """
+    user_input: dict
     # FIXME: PyTA is complaining that you did not annotate the instance attributes. I'm not sure
     #  if these are instance attributes. It's also complaining that there are too many.
 
-    def __init__(self, win: Tk, hotel_options: tuple):  # TODO add return type annotation
-        self.lbl1 = Label(win, text='Hotel')
-        self.lbl2 = Label(win, text='Leave time')
-        self.lbl3 = Label(win, text='Return time')
-        self.lbl4 = Label(win, text='Locations')
+    def __init__(self, win: tkinter.Tk, hotel_options: tuple):  # TODO add return type annotation
+        self.lbl1 = tkinter.Label(win, text='Hotel')
+        self.lbl2 = tkinter.Label(win, text='Leave time')
+        self.lbl3 = tkinter.Label(win, text='Return time')
+        self.lbl4 = tkinter.Label(win, text='Locations')
         # TODO: add day range
 
         #  UI Scroll down options for hotel
-        self.var = StringVar()
+        self.var = tkinter.StringVar()
         self.var.set("one")
         self.data = hotel_options  # TODO: do we actually have hotel data points??
-        self.cb = Combobox(window, values=self.data)
-        self.cb.place(x=200, y=50)
+        self.cmmb = Combobox(win, values=self.data)
+        self.cmmb.place(x=200, y=50)
 
         #  UI  Text input options
-        self.t1 = Entry(bd=3)
-        self.t2 = Entry()
-        self.t3 = Entry()
+        self.t1 = tkinter.Entry(bd=3)
+        self.t2 = tkinter.Entry()
+        self.t3 = tkinter.Entry()
 
         #  UI Button customization
-        self.btn1 = Button(win, text='Send preferences')
+        self.btn1 = tkinter.Button(win, text='Send preferences')
 
         self.lbl1.place(x=100, y=50)
         self.t1.place(x=200, y=100)
@@ -44,10 +45,12 @@ class PopUp:
         self.lbl3.place(x=100, y=150)
         self.t3.place(x=200, y=200)
         self.lbl4.place(x=100, y=200)
-        self.b1 = Button(win, text='Add', command=self.get_user_input)
+        self.b1 = tkinter.Button(win, text='Submit', command=self.get_user_input)
         self.b1.place(x=150, y=250)
+        self.b2 = tkinter.Button(win, text='Close', command=win.destroy)
+        self.b2.place(x=250, y=250)
 
-    def get_user_input(self) -> dict:
+    def get_user_input(self) -> None:
         """Return a dictionary containing data inputted by the user, using a graphical user
         interface implemented using tkinter.
         The returned dictionary will contain the keys 'hotel', 'days', 'leave', 'return',
@@ -63,7 +66,8 @@ class PopUp:
             - 'locations' contains a list of <names> of locations the user wants to visit. It is
                 optional, and if the user does not enter anything it is an empty list.
         """
-        hotel = self.cb.get()
+        # TODO update docstring
+        hotel = self.cmmb.get()
         leave_raw = self.t1.get()
         # FIXME: leave and return refer to hours of the day the user wants to be outside
         dt_tuple_leave = tuple([int(x) for x in leave_raw[:10].split('-')]) + tuple(
@@ -79,6 +83,8 @@ class PopUp:
         loc = locations_raw.split()
 
         # TODO: add day range
+        # TODO: change format to DD-MM-YYYY
+        # TODO check if return > leave
 
         input_dict = {
             'hotel': hotel,
@@ -86,8 +92,18 @@ class PopUp:
             'return': datetimeobj2,
             'locations': loc
         }
-        print(input_dict)
-        return input_dict
+
+        self.user_input = input_dict
+
+
+def open_input_window(hotels: tuple) -> PopUp:
+    """Opens a window that allows the user to input their preferences."""
+    window = tkinter.Tk()
+    mywin = PopUp(window, hotels)
+    window.title('User Input Settings')
+    window.geometry("400x300+10+10")
+    window.mainloop()
+    return mywin
 
 
 if __name__ == "__main__":
@@ -100,9 +116,3 @@ if __name__ == "__main__":
         'max-line-length': 100,
         'disable': ['R1705', 'C0200']
     })
-
-    window = Tk()
-    mywin = PopUp(window, ("one", "two", "three", "four"))
-    window.title('User Input Settings')
-    window.geometry("400x300+10+10")
-    window.mainloop()
