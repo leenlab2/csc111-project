@@ -23,10 +23,10 @@ def choose_locations(maps: CityLocations, hotel: Hotel,
                      planned_activities: list, leave: datetime, return_time: datetime) -> list:
     """Finds locations to fill the schedule with.
     """
-    activities = dict()
+    activities = []
     if planned_activities == []:
         activities = find_locations(hotel, maps, 60, leave, return_time, True)
-        return filter_locations(activities)
+        return filter_locations(activities, 6)
     else:
         # may shift start location and time to add to the planned activities list
         activities = ...
@@ -65,7 +65,6 @@ def filter_locations(locations: list, slots: int) -> list:
     final = []
     min_max = locations[0].rating
     return final
-
 
 # uncomment this when you want
 # if __name__ == "__main__":
