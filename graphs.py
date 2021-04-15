@@ -95,7 +95,7 @@ class Graph:
         """Returns set of neighbors from given vertex
         """
         return self._vertices[location].neighbours
-    
+
     def get_vertex(self, location: Location) -> _Vertex:
         """Returns the vertex searched for.
         """
@@ -205,25 +205,9 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
 
         # TODO create Location objects, adjust according to dataset
         # add landmark vertices
+
         for landmark in landmarks_reader:
-            # 1 = name, 5 = lat, 6 = lon, 8-21 = opening times (sun-open, sun-close,..)
-            open = {'Sunday': (time(hour=int(landmark[8][:2]), minute=int(landmark[8][2:])),
-                               time(hour=int(landmark[9][:2]), minute=int(landmark[9][2:]))),
-                    'Monday': (time(hour=int(landmark[10][:2]), minute=int(landmark[10][2:])),
-                               time(hour=int(landmark[11][:2]), minute=int(landmark[11][2:]))),
-                    'Tuesday': (time(hour=int(landmark[12][:2]), minute=int(landmark[12][2:])),
-                                time(hour=int(landmark[13][:2]), minute=int(landmark[13][2:]))),
-                    'Wednesday': (time(hour=int(landmark[14][:2]), minute=int(landmark[14][2:])),
-                                  time(hour=int(landmark[15][:2]), minute=int(landmark[15][2:]))),
-                    'Thursday': (time(hour=int(landmark[16][:2]), minute=int(landmark[16][2:])),
-                                 time(hour=int(landmark[17][:2]), minute=int(landmark[17][2:]))),
-                    'Friday': (time(hour=int(landmark[18][:2]), minute=int(landmark[18][2:])),
-                               time(hour=int(landmark[19][:2]), minute=int(landmark[19][2:]))),
-                    'Saturday': (time(hour=int(landmark[20][:2]), minute=int(landmark[20][2:])),
-                                 time(hour=int(landmark[21][:2]), minute=int(landmark[21][2:])))}
-            new_landmark = Landmark(landmark[1], (float(landmark[5]), float(landmark[6])),
-                                    open, rating)
-            city_graph.add_vertex(new_landmark)
+            add_landmarks(city_graph, landmark)
 
         # add restaurant vertices
         for restaurant in restaurants_reader:
@@ -253,6 +237,52 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
         # TODO improve efficiency
 
     return city_graph
+
+
+def add_landmarks(graph: CityLocations, landmark: list) -> None:
+    """Adds the landmarks to the graph"""
+    # 1 = name, 5 = lat, 6 = lon, 8-21 = opening times (sun-open, sun-close,..), 22 = rating
+    operation_times = {'Sunday': (time(hour=int(landmark[8][:2]), minute=int(landmark[8][2:])),
+                                  time(hour=int(landmark[9][:2]), minute=int(landmark[9][2:]))),
+                       'Monday': (time(hour=int(landmark[10][:2]), minute=int(landmark[10][2:])),
+                                  time(hour=int(landmark[11][:2]), minute=int(landmark[11][2:]))),
+                       'Tuesday': (time(hour=int(landmark[12][:2]), minute=int(landmark[12][2:])),
+                                   time(hour=int(landmark[13][:2]), minute=int(landmark[13][2:]))),
+                       'Wednesday': (time(hour=int(landmark[14][:2]), minute=int(landmark[14][2:])),
+                                     time(hour=int(landmark[15][:2]),
+                                          minute=int(landmark[15][2:]))),
+                       'Thursday': (time(hour=int(landmark[16][:2]), minute=int(landmark[16][2:])),
+                                    time(hour=int(landmark[17][:2]), minute=int(landmark[17][2:]))),
+                       'Friday': (time(hour=int(landmark[18][:2]), minute=int(landmark[18][2:])),
+                                  time(hour=int(landmark[19][:2]), minute=int(landmark[19][2:]))),
+                       'Saturday': (time(hour=int(landmark[20][:2]), minute=int(landmark[20][2:])),
+                                    time(hour=int(landmark[21][:2]), minute=int(landmark[21][2:])))}
+
+    if landmark[9] == 'N/A':
+        operation_times['Sunday'] = None
+
+    elif landmark[10] == 'N/A':
+
+        operation_times['Monday'] = None
+
+    elif landmark[11] == 'N/A':
+        operation_times['Tuesday'] = None
+
+    elif landmark[12] == 'N/A':
+        operation_times['Wednesday'] = None
+
+    elif landmark[13] == 'N/A':
+        operation_times['Thursday'] = None
+
+    elif landmark[10] == 'N/A':
+        operation_times['Friday'] = None
+
+    elif landmark[10] == 'N/A':
+        operation_times['Saturday'] = None
+
+    new_landmark = Landmark(landmark[1], (float(landmark[5]), float(landmark[6])),
+                            operation_times, landmark[22])
+    graph.add_vertex(new_landmark)
 
 
 def load_subway_graph(subway_file: str, subway_lines_file: str) -> SubwayLines:
@@ -287,10 +317,8 @@ def load_subway_graph(subway_file: str, subway_lines_file: str) -> SubwayLines:
             # get the stations corresponding to those three ids
             station1 = ids_to_objects[int(row[0])]
             station2 = ids_to_objects[int(row[1])]
-            station3 = ids_to_objects[int(row[2])]
 
             subway_graph.add_edge(station1, station2)
-            subway_graph.add_edge(station1, station3)
 
     return subway_graph
 
