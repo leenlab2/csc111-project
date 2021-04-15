@@ -17,37 +17,35 @@ class PopUp:
     #  if these are instance attributes. It's also complaining that there are too many.
 
     def __init__(self, win: tkinter.Tk, hotel_options: tuple) -> None:
-        self.lbl1 = tkinter.Label(win, text='Hotel')
-        self.lbl2 = tkinter.Label(win, text='Leave time')
-        self.lbl3 = tkinter.Label(win, text='Return time')
-        self.lbl4 = tkinter.Label(win, text='Locations')
+        lbl1 = Label(win, text='Hotel')
+        lbl2 = Label(win, text='Leave time')
+        lbl3 = Label(win, text='Return time')
+        lbl4 = Label(win, text='Locations')
 
         #  UI Scroll down options for hotel
-        self.var = tkinter.StringVar()
-        self.var.set("one")
-        self.data = hotel_options
-        self.cmmb = Combobox(win, values=self.data)
-        self.cmmb.place(x=200, y=50)
+        var = StringVar()
+        var.set("one")
+        data = hotel_options
+        self.cb = Combobox(window, values=data)
+        self.cb.place(x=200, y=50)
 
         #  UI  Text input options
-        self.t1 = tkinter.Entry(bd=3)
-        self.t2 = tkinter.Entry()
-        self.t3 = tkinter.Entry()
+        self.t1 = Entry(bd=3)
+        self.t2 = Entry()
+        self.t3 = Entry()
 
         #  UI Button customization
-        self.btn1 = tkinter.Button(win, text='Send preferences')
+        btn1 = Button(win, text='Send preferences')
 
-        self.lbl1.place(x=100, y=50)
+        lbl1.place(x=100, y=50)
         self.t1.place(x=200, y=100)
-        self.lbl2.place(x=100, y=100)
+        lbl2.place(x=100, y=100)
         self.t2.place(x=200, y=150)
-        self.lbl3.place(x=100, y=150)
+        lbl3.place(x=100, y=150)
         self.t3.place(x=200, y=200)
-        self.lbl4.place(x=100, y=200)
-        self.b1 = tkinter.Button(win, text='Submit', command=self.get_user_input)
-        self.b1.place(x=150, y=250)
-        self.b2 = tkinter.Button(win, text='Close', command=win.destroy)
-        self.b2.place(x=250, y=250)
+        lbl4.place(x=100, y=200)
+        b1 = Button(win, text='Add', command=self.get_user_input)
+        b1.place(x=150, y=250)
 
     def get_user_input(self) -> None:
         """Return a dictionary containing data inputted by the user, using a graphical user
