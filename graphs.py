@@ -242,43 +242,48 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
 def add_landmarks(graph: CityLocations, landmark: list) -> None:
     """Adds the landmarks to the graph"""
     # 1 = name, 5 = lat, 6 = lon, 8-21 = opening times (sun-open, sun-close,..), 22 = rating
-    operation_times = {'Sunday': (time(hour=int(landmark[8][:2]), minute=int(landmark[8][2:])),
-                                  time(hour=int(landmark[9][:2]), minute=int(landmark[9][2:]))),
-                       'Monday': (time(hour=int(landmark[10][:2]), minute=int(landmark[10][2:])),
-                                  time(hour=int(landmark[11][:2]), minute=int(landmark[11][2:]))),
-                       'Tuesday': (time(hour=int(landmark[12][:2]), minute=int(landmark[12][2:])),
-                                   time(hour=int(landmark[13][:2]), minute=int(landmark[13][2:]))),
-                       'Wednesday': (time(hour=int(landmark[14][:2]), minute=int(landmark[14][2:])),
-                                     time(hour=int(landmark[15][:2]),
-                                          minute=int(landmark[15][2:]))),
-                       'Thursday': (time(hour=int(landmark[16][:2]), minute=int(landmark[16][2:])),
-                                    time(hour=int(landmark[17][:2]), minute=int(landmark[17][2:]))),
-                       'Friday': (time(hour=int(landmark[18][:2]), minute=int(landmark[18][2:])),
-                                  time(hour=int(landmark[19][:2]), minute=int(landmark[19][2:]))),
-                       'Saturday': (time(hour=int(landmark[20][:2]), minute=int(landmark[20][2:])),
-                                    time(hour=int(landmark[21][:2]), minute=int(landmark[21][2:])))}
+    operation_times = {}
 
-    if landmark[9] == 'N/A':
+    if landmark[8] == 'N/A':
         operation_times['Sunday'] = None
-
-    elif landmark[10] == 'N/A':
-
+    else:
+        operation_times['Sunday'] = (time(hour=int(landmark[8][:2]), minute=int(landmark[8][2:])),
+                                     time(hour=int(landmark[9][:2]), minute=int(landmark[9][2:])))
+    if landmark[10] == 'N/A':
         operation_times['Monday'] = None
+    else:
+        operation_times['Monday'] = (time(hour=int(landmark[10][:2]), minute=int(landmark[10][2:])),
+                                     time(hour=int(landmark[11][:2]), minute=int(landmark[11][2:])))
 
-    elif landmark[11] == 'N/A':
+    if landmark[12] == 'N/A':
         operation_times['Tuesday'] = None
+    else:
+        operation_times['Tuesday'] = (time(hour=int(landmark[12][:2]), minute=int(landmark[12][2:])),
+                                      time(hour=int(landmark[13][:2]), minute=int(landmark[13][2:])))
 
-    elif landmark[12] == 'N/A':
+    if landmark[14] == 'N/A':
         operation_times['Wednesday'] = None
+    else:
+        operation_times['Wednesday'] = (time(hour=int(landmark[14][:2]), minute=int(landmark[14][2:])),
+                                        time(hour=int(landmark[15][:2]), minute=int(landmark[15][2:])))
 
-    elif landmark[13] == 'N/A':
+    if landmark[16] == 'N/A':
         operation_times['Thursday'] = None
+    else:
+        operation_times['Thursday'] = (time(hour=int(landmark[16][:2]), minute=int(landmark[16][2:])),
+                                       time(hour=int(landmark[17][:2]), minute=int(landmark[17][2:])))
 
-    elif landmark[10] == 'N/A':
+    if landmark[18] == 'N/A':
         operation_times['Friday'] = None
+    else:
+        operation_times['Friday'] = (time(hour=int(landmark[18][:2]), minute=int(landmark[18][2:])),
+                                     time(hour=int(landmark[19][:2]), minute=int(landmark[19][2:])))
 
-    elif landmark[10] == 'N/A':
+    if landmark[20] == 'N/A':
         operation_times['Saturday'] = None
+    else:
+        operation_times['Saturday'] = (time(hour=int(landmark[20][:2]), minute=int(landmark[20][2:])),
+                                       time(hour=int(landmark[21][:2]), minute=int(landmark[21][2:])))
 
     new_landmark = Landmark(landmark[1], (float(landmark[5]), float(landmark[6])),
                             operation_times, landmark[22])
