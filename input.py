@@ -17,31 +17,33 @@ class PopUp:
     #  if these are instance attributes. It's also complaining that there are too many.
 
     def __init__(self, win: tkinter.Tk, hotel_options: tuple) -> None:
-        lbl1 = Label(win, text='Hotel')
-        lbl2 = Label(win, text='Leave time')
-        lbl3 = Label(win, text='Return time')
+        lbl1 = tkinter.Label(win, text='Hotel')
+        lbl2 = tkinter.Label(win, text='Leave time')
+        lbl3 = tkinter.Label(win, text='Return time')
 
         #  UI Scroll down options for hotel
-        var = StringVar()
+        var = tkinter.StringVar()
         var.set("one")
         data = hotel_options
-        self.cb = Combobox(window, values=data)
+        self.cb = Combobox(win, values=data)
         self.cb.place(x=200, y=50)
 
         #  UI  Text input options
-        self.t1 = Entry(bd=3)
-        self.t2 = Entry()
+        self.t1 = tkinter.Entry(bd=3)
+        self.t2 = tkinter.Entry()
 
         #  UI Button customization
-        btn1 = Button(win, text='Send preferences')
+        btn1 = tkinter.Button(win, text='Send preferences')
 
         lbl1.place(x=100, y=50)
         self.t1.place(x=200, y=100)
         lbl2.place(x=100, y=100)
         self.t2.place(x=200, y=150)
-        lbl3.place(x=100, y=150
-        b1 = Button(win, text='Add', command=self.get_user_input)
+        lbl3.place(x=100, y=150)
+        b1 = tkinter.Button(win, text='Submit', command=self.get_user_input)
         b1.place(x=150, y=250)
+        b2 = tkinter.Button(win, text='Close', command=win.destroy)
+        b2.place(x=250, y=250)
 
     def get_user_input(self) -> None:
         """Return a dictionary containing data inputted by the user, using a graphical user
@@ -54,10 +56,8 @@ class PopUp:
             referring to a date and a particular hour in the day.
             - 'return' is the time the user prefers to return to the hotel. It is a datetime object
                 referring to a date and a particular hour in the day. It is after 'leave' time.
-            - 'locations' contains a list of <names> of locations the user wants to visit. It is
-                optional, and if the user does not enter anything it is an empty list.
         """
-        hotel = self.cmmb.get()
+        hotel = self.cb.get()
         leave_raw = self.t1.get()
         dt_tuple_leave = tuple([int(x) for x in leave_raw[:10].split('-')]) + tuple(
             [int(x) for x in leave_raw[11:].split(':')])
@@ -67,7 +67,7 @@ class PopUp:
         dt_tuple_return = tuple([int(x) for x in returns_raw[:10].split('-')]) + tuple(
             [int(x) for x in returns_raw[11:].split(':')])
         datetimeobj2 = datetime.datetime(*dt_tuple_return)
-                   
+
         # TODO: change format to DD-MM-YYYY
         # TODO check if return > leave
         # TODO: some way to indicate that locations is optional and the date format for user
