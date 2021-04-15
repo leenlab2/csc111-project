@@ -86,15 +86,25 @@ class Graph:
         else:
             return False
 
-    def get_vertex(self, location: str) -> _Vertex:
+    def get_vertex_str(self, location: str) -> _Vertex:
         """Returns the vertex searched for.
         """
         return self._vertices[location]
 
-    def get_neighbors(self, location: str) -> set:
+    def get_neighbors_str(self, location: str) -> set:
         """Returns set of neighbors from given vertex
         """
         return self._vertices[location].neighbours
+    
+    def get_vertex(self, location: Location) -> _Vertex:
+        """Returns the vertex searched for.
+        """
+        return self._vertices[location.name]
+
+    def get_neighbors(self, location: Location) -> set:
+        """Returns set of neighbors from given vertex
+        """
+        return self._vertices[location.name].neighbours
 
 
 class CityLocations(Graph):
