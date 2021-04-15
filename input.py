@@ -20,7 +20,6 @@ class PopUp:
         lbl1 = Label(win, text='Hotel')
         lbl2 = Label(win, text='Leave time')
         lbl3 = Label(win, text='Return time')
-        lbl4 = Label(win, text='Locations')
 
         #  UI Scroll down options for hotel
         var = StringVar()
@@ -32,7 +31,6 @@ class PopUp:
         #  UI  Text input options
         self.t1 = Entry(bd=3)
         self.t2 = Entry()
-        self.t3 = Entry()
 
         #  UI Button customization
         btn1 = Button(win, text='Send preferences')
@@ -41,9 +39,7 @@ class PopUp:
         self.t1.place(x=200, y=100)
         lbl2.place(x=100, y=100)
         self.t2.place(x=200, y=150)
-        lbl3.place(x=100, y=150)
-        self.t3.place(x=200, y=200)
-        lbl4.place(x=100, y=200)
+        lbl3.place(x=100, y=150
         b1 = Button(win, text='Add', command=self.get_user_input)
         b1.place(x=150, y=250)
 
@@ -71,10 +67,7 @@ class PopUp:
         dt_tuple_return = tuple([int(x) for x in returns_raw[:10].split('-')]) + tuple(
             [int(x) for x in returns_raw[11:].split(':')])
         datetimeobj2 = datetime.datetime(*dt_tuple_return)
-
-        locations_raw = self.t3.get()
-        loc = locations_raw.split()
-
+                   
         # TODO: change format to DD-MM-YYYY
         # TODO check if return > leave
         # TODO: some way to indicate that locations is optional and the date format for user
@@ -82,8 +75,7 @@ class PopUp:
         input_dict = {
             'hotel': hotel,
             'leave': datetimeobj1,
-            'return': datetimeobj2,
-            'locations': loc
+            'return': datetimeobj2
         }
 
         self.user_input = input_dict
