@@ -1,5 +1,4 @@
 """This module contains functions that choose the locations this trip will visit.
-
 This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
 """
 from __future__ import annotations
@@ -10,15 +9,16 @@ import datetime
 DAY_TRANSLATION = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday',
                    3: 'Thursday', 4: 'Friday', 5: 'Saturday',
                    6: 'Sunday'}
-MIDDAY = datetime.datetime(2020, 12, 12, 12, 00, 00, 00)
+MIDDAY = datetime.datetime(2022, 12, 1, 12, 00, 00, 00)
+
+START = datetime.datetime(2021, 4, 15, 8, 00, 00, 00)
+END = datetime.datetime(2021, 4, 15, 19, 00, 00, 00)
+
+START2 = datetime.datetime(2021, 4, 15, 13, 00, 00, 00)
+PLAN = ['Comptoir du sept', 'Le spicy home', 'Château of Vincennes']
 
 
 def choose_locations(maps: CityLocations, hotel: str,
-                     planned_activities: list, leave: datetime, return_time: datetime) -> list:
-    """Finds locations to fill the schedule with.
-    """
-
-   def choose_locations(maps: CityLocations, hotel: str,
                      planned_activities: list[str], leave: datetime, return_time: datetime) -> list:
     """Finds locations to fill the schedule with.
     """
@@ -30,7 +30,7 @@ def choose_locations(maps: CityLocations, hotel: str,
     final_plan = []
 
     # If user starts before noon and doesn't have a plan
-    if planned_activities == [] and diff > 0:
+    if planned_activities == [] and diff.seconds > 0:
         activities = find_locations(hotel, maps, 60, leave, return_time, True)
         final_plan = filter_locations(activities, time_slots)
         restaurants = find_restaurant(final_plan[-1], maps, 3)
@@ -49,7 +49,7 @@ def choose_locations(maps: CityLocations, hotel: str,
         for activity in planned_activities:
             final_plan.append(maps.get_vertex_str(activity).location)
         activities = find_locations(planned_activities[-1], maps, 60, start, return_time, False)
-        if diff > 0:
+        if diff.seconds > 0:
             time_slots = int(diff.seconds / 3600)
             diff2 = return_time - (MIDDAY + datetime.timedelta(hours=1))
             time_slots2 = int(diff2.seconds / 3600)
@@ -70,23 +70,24 @@ def find_locations(start: str,
                    return_time: datetime, hotel=True) -> list:
     """Helper function for choose_locations
     """
-    visited = set()
+    visited = []
     recommended = []
-    neighbours = maps.get_neighbors(start)
-    start_v = maps.get_vertex(start)
+    neighbours = maps.get_neighbors_str(start)
+    start_v = maps.get_vertex_str(start)
     day = DAY_TRANSLATION[starting_time.weekday()]
     starting_time = starting_time + datetime.timedelta(minutes=30)
     if (starting_time >= return_time) or (distance == 0):
         return []
     elif hotel:
-        visited.add(start_v.location)
+        visited.append(start_v.location)
         for u in neighbours:
             find_locations(u.item, maps, distance - 1, starting_time, return_time, False)
     elif start_v.location not in visited:
-        visited.add(start_v.location)
-        if isinstance(start_v.location, Landmark) and \
-                start_v.location.opening_times[day][0] <= starting_time.time() <= \
-                start_v.location.opening_times[day][0]:
+        visited.append(start_v.location)
+        if (isinstance(start_v.location, Landmark) and
+                (start_v.location.opening_times[day] is not None and
+                 start_v.location.opening_times[day][0] <= starting_time.time() <=
+                 start_v.location.opening_times[day][0])):
             recommended.append(start_v.location)
         for u in neighbours:
             find_locations(u.item, maps, distance - 1, starting_time, return_time, False)
@@ -99,8 +100,8 @@ def find_restaurant(start: str, maps: CityLocations, distance: int) -> list[Rest
     """
     visited = []
     restaurants = []
-    start_v = maps.get_vertex(start)
-    neighbours = maps.get_neighbors(start)
+    start_v = maps.get_vertex_str(start)
+    neighbours = maps.get_neighbors_str(start)
     if distance <= 0:
         return []
     elif isinstance(start_v.location, Restaurant):
