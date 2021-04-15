@@ -17,10 +17,16 @@ def choose_locations(maps: CityLocations, hotel: str,
     """Finds locations to fill the schedule with.
     """
 
+   def choose_locations(maps: CityLocations, hotel: str,
+                     planned_activities: list[str], leave: datetime, return_time: datetime) -> list:
+    """Finds locations to fill the schedule with.
+    """
+
     diff = MIDDAY - leave
-    time_slots = int((diff.seconds / 60)/60)
+    time_slots = int(diff.seconds / 3600)
     diff2 = return_time - (MIDDAY + datetime.timedelta(hours=1))
-    time_slots2 = int((diff2.seconds / 60) / 60)
+    time_slots2 = int(diff2.seconds / 3600)
+    final_plan = []
 
     # If user starts before noon and doesn't have a plan
     if planned_activities == [] and diff > 0:
@@ -28,29 +34,31 @@ def choose_locations(maps: CityLocations, hotel: str,
         final_plan = filter_locations(activities, time_slots)
         restaurants = find_restaurant(final_plan[-1], maps, 3)
         final_plan.extend(filter_locations(restaurants, 1))
-        final_plan = filter_locations(activities, time_slots2)
+        final_plan.extend(filter_locations(activities, time_slots2))
     # If user starts after noon and doesn't have a plan
     elif planned_activities == []:
         activities = find_locations(hotel, maps, 60, leave, return_time, True)
         diff = return_time - leave
-        time_slots = int((diff.seconds / 60) / 60)
+        time_slots = int(diff.seconds / 3600)
         final_plan = filter_locations(activities, time_slots)
-    # If the user doesn't have a plan
+    # If the user does have a plan
     else:
         start = leave + datetime.timedelta(hours=len(planned_activities)*2)
         diff = MIDDAY - start
+        for activity in planned_activities:
+            final_plan.append(maps.get_vertex_str(activity).location)
         activities = find_locations(planned_activities[-1], maps, 60, start, return_time, False)
         if diff > 0:
-            time_slots = int((diff.seconds / 60) / 60)
+            time_slots = int(diff.seconds / 3600)
             diff2 = return_time - (MIDDAY + datetime.timedelta(hours=1))
-            time_slots2 = int((diff2.seconds / 60) / 60)
-            final_plan = filter_locations(activities, time_slots)
-            restaurants = find_restaurant(final_plan[-1], maps, 3)
+            time_slots2 = int(diff2.seconds / 3600)
+            final_plan.extend(filter_locations(activities, time_slots))
+            restaurants = find_restaurant(final_plan[-1].name, maps, 3)
             final_plan.extend(filter_locations(restaurants, 1))
-            final_plan = filter_locations(activities, time_slots2)
+            final_plan.extend(filter_locations(activities, time_slots2))
         else:
             diff = return_time - leave
-            time_slots = int((diff.seconds / 60) / 60)
+            time_slots = int(diff.seconds / 3600)
             final_plan = filter_locations(activities, time_slots)
 
     return final_plan
