@@ -1,3 +1,6 @@
+"""This module contains functions that choose the locations this trip will visit.
+This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
+"""
 from __future__ import annotations
 from graphs import *
 import datetime
@@ -103,55 +106,12 @@ def find_restaurant(start: str, maps: CityLocations, distance: int) -> list[Rest
 def filter_locations(locations: list[Restaurant or Landmark], slots: int) -> list:
     """Return list of locations with best ratings from the given dictionary
     """
-    final = _mergesort(locations)
-    return final[-slots:]
+    locations.sort(key=helper_sort, reverse=True)
+    final = locations[:slots]
+    return final
 
 
-def _mergesort(lst: list[Restaurant or Landmark]) -> list:
-    """Return a new sorted list with the same elements as lst.
-
-    This is a *non-mutating* version of mergesort; it does not mutate the
-    input list.
+def helper_sort(e: Restaurant or Landmark):
+    """Returns the rating of a Location
     """
-    if len(lst) < 2:
-        return lst.copy()  # Use the list.copy method to return a new list object
-    else:
-        # Divide the list into two parts, and sort them recursively.
-        mid = len(lst) // 2
-        left_sorted = _mergesort(lst[:mid])
-        right_sorted = _mergesort(lst[mid:])
-
-        # Merge the two sorted halves. Using a helper here!
-        return _merge(left_sorted, right_sorted)
-
-
-def _merge(lst1: list[Restaurant or Landmark], lst2: list[Restaurant or Landmark]) -> list:
-    """Return a sorted list with the elements in lst1 and lst2.
-
-    Preconditions:
-        - is_sorted(lst1)
-        - is_sorted(lst2)
-    """
-    i1, i2 = 0, 0
-    sorted_so_far = []
-
-    while i1 < len(lst1) and i2 < len(lst2):
-        # Loop invariant:
-        # sorted_so_far is a merged version of lst1[:i1] and lst2[:i2]
-        assert sorted_so_far == sorted(lst1[:i1] + lst2[:i2])
-
-        if lst1[i1].rating <= lst2[i2].rating:
-            sorted_so_far.append(lst1[i1])
-            i1 += 1
-        else:
-            sorted_so_far.append(lst2[i2])
-            i2 += 1
-
-    # When the loop is over, either i1 == len(lst1) or i2 == len(lst2)
-    assert i1 == len(lst1) or i2 == len(lst2)
-
-    # In either case, the remaining unmerged elements can be concatenated to sorted_so_far.
-    if i1 == len(lst1):
-        return sorted_so_far + lst2[i2:]
-    else:
-        return sorted_so_far + lst1[i1:]
+    return e.rating
