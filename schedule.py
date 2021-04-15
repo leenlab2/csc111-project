@@ -4,9 +4,9 @@ This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Bece
 """
 
 from __future__ import annotations
-from datetime import date
-import location
-from typing import List
+from datetime import datetime
+from location import Location
+from typing import Optional
 
 
 class TimeBlock:
@@ -17,30 +17,74 @@ class TimeBlock:
         - start_time: An attribute representing when the user leaves the hotel
         - end_time: An attribute representing when the user returns to the hotel
         - location_visited: An attribute representing
+
     Representation Invariants:
-        - self.start_time.MINYEAR < self.start_time.year < self.start_time.MAXYEAR
         - 1 < self.start_time.month < 12
         """
-    start_time: date
-    end_time: date
-    location_visited: location
+    start_time: datetime
+    end_time: datetime
+    location_visited: Location
 
-    def __init__(self, start: date, loc: location) -> None:
+    def __init__(self, start: datetime, loc: Location, end: Optional[datetime] = None)\
+            -> None:
         """Initialize a new TimeBlock object"""
         self.start_time = start
-        self.end_time = start + location.Landmark.time_spent + location.Restaurant.time_spent
-        self.location_visited = loc.Location
+        self.location_visited = loc
 
-    def build_schedule(self, path: List[location], start: date) -> List[TimeBlock]:
-        """A function that returns a list of TimeBlocks"""
-        accumulator = []
-        for p in path:
-            accumulator.append(self.__init__(start, p))
-        return accumulator
+        if end is not None:
+            self.end_time = end
+        else:
+            self.end_time = start + loc.time_spent
 
 
-# TODO use the path to build a schedule
-# TODO fix discrepancies
+def build_schedule(path: list[Location], start: datetime, end: datetime) -> list[TimeBlock]:
+    """Return a schedule in the form of a list of TimeBlock objects based on the path.
+
+    Preconditions:
+        - the only hotel in path is at the start/end
+    """
+    locations_to_visit = path[1:]  # TODO hotel at end?
+    schedule = []
+
+    for location in locations_to_visit:
+        new_time_block = TimeBlock(start, location)
+        start += location.time_spent
+        schedule.append(new_time_block)
+
+    # if we overflow beyond the planned time
+    while schedule[-1].end_time > end:
+        schedule = fix_schedule(schedule)
+
+    return schedule
+
+
+def fix_schedule(schedule: list[TimeBlock]) -> list[TimeBlock]:
+    """"Return a fixed copy of the schedule accounting for if we cross the inputted return time.
+    This is done by reducing time spent at the lowest rated location.
+    """
+    fixed_schedule = schedule.copy()
+
+    # find lowest rated location
+    lowest_index = 0
+
+    for i in range(0, len(schedule)):
+        if schedule[i].location_visited.rating < schedule[lowest_index].location_visited.rating:
+            lowest_index = i
+
+    # reduce time spent there by 50%
+    # FIXME: what happens when time_spent // 2 becomes really small?
+    start = schedule[lowest_index].start_time
+    end = start + schedule[lowest_index].location_visited.time_spent // 2
+    fixed_schedule[lowest_index] = TimeBlock(start, schedule[lowest_index].location_visited, end)
+
+    # shift the rest of the schedule
+    for j in range(lowest_index + 1, len(schedule)):
+        fixed_schedule[j].start_time = end
+        fixed_schedule[j].end_time = end + fixed_schedule[j].location_visited.time_spent
+
+        end = fixed_schedule[j].end_time
+
+    return fixed_schedule
 
 # uncomment this when you want
 # if __name__ == "__main__":

@@ -7,6 +7,7 @@ from location import Location, SubwayStation
 from graphs import CityLocations, SubwayLines, get_distance
 from typing import Optional
 # TODO: improve docstrings
+# TODO update to reflect the item vs location change
 
 
 def find_path(chosen_locations: list[Location], city_graph: CityLocations,
@@ -16,6 +17,7 @@ def find_path(chosen_locations: list[Location], city_graph: CityLocations,
     # initialize the path, starting at the hotel
     path = [city_graph.hotel]
     prev = city_graph.hotel
+    # TODO go back to hotel
 
     for location in chosen_locations:
         # if next location is adjacent, add to list

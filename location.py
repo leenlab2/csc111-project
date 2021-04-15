@@ -33,10 +33,8 @@ class Landmark(Location):
             for on that day. It only includes days the location is open on.
         - rating: the average rating given to this location by reviewers
         - time_spent: the average time spent at this location
-        - type: what type of landmark this is, from our abstract definition of a landmark
 
     Representation Invariants:
-        - self.type in {'historical', 'natural', 'entertainment', 'leisure'}
         - all(day in {'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'}
             for day in self.opening_times)
         - 0 <= self.rating <= 5
@@ -44,8 +42,7 @@ class Landmark(Location):
     """
     opening_times: dict[str, tuple[datetime.time, datetime.time]]
     rating: float
-    time_spent: datetime.timedelta
-    type: str
+    time_spent: datetime.timedelta = datetime.timedelta(hours=2)
 
 
 @dataclass
@@ -59,7 +56,6 @@ class Restaurant(Location):
         - time_spent: the average time spent at this location
 
     Representation Invariants:
-        - self.menu_type.isalpha()
         - all(day in {'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'}
             for day in self.opening_times)
         - 0 <= self.rating <= 5
@@ -67,7 +63,7 @@ class Restaurant(Location):
     """
     opening_times: dict[str, tuple[datetime.time, datetime.time]]
     rating: float
-    time_spent: datetime.timedelta
+    time_spent: datetime.timedelta = datetime.timedelta(hours=1)
 
 
 @dataclass
@@ -83,7 +79,14 @@ class Hotel(Location):
 @dataclass
 class SubwayStation(Location):
     """A subway station in the city
+
+    Instance Attributes:
+        - time_spent: the average time spent at this location
+
+    Representation Invariants:
+        - datetime.timedelta(0) <= self.time_spent <= datetime.timedelta(hours=24)
     """
+    time_spent: datetime.timedelta = datetime.timedelta(minutes=15)
 
 
 if __name__ == "__main__":
