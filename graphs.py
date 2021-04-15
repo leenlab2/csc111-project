@@ -148,7 +148,7 @@ class SubwayLines(Graph):
 
 
 def get_distance(l1: Location, l2: Location) -> float:
-    """Return the location in meters between two geographical locations.
+    """Return the distance in meters between two geographical locations.
 
     This uses the haversine formula found here:
     https://www.movable-type.co.uk/scripts/latlong.html
