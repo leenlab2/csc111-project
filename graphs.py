@@ -120,7 +120,7 @@ class CityLocations(Graph):
         Graph.__init__(self)
         self.hotel = None
 
-    def get_all_vertices(self, kind: Optional[Callable] = None) -> set:
+    def get_all_vertices(self, kind: Optional[Callable] = None) -> list:
         """Return a set of all vertex items in this graph.
 
         If kind != '', only return the items of the given vertex kind.
@@ -129,9 +129,9 @@ class CityLocations(Graph):
             - kind in {'', 'Landmark', 'Restaurant', 'SubwayStation'}
         """
         if kind is not None:
-            return {v.location for v in self._vertices.values() if isinstance(v.location, kind)}
+            return [v.location for v in self._vertices.values() if isinstance(v.location, kind)]
         else:
-            return {v.location for v in self._vertices.values()}
+            return [v.location for v in self._vertices.values()]
 
 
 class SubwayLines(Graph):
@@ -207,12 +207,16 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
         # add landmark vertices
 
         for landmark in landmarks_reader:
-            add_landmarks(city_graph, landmark)
+            operation_times = get_opening_times(landmark[8:22])
+            new_landmark = Landmark(landmark[1], (float(landmark[5]), float(landmark[6])),
+                                    operation_times, float(landmark[22]))
+            city_graph.add_vertex(new_landmark)
 
         # add restaurant vertices
         for restaurant in restaurants_reader:
-            name, location, opening_time, rating, time_spent = restaurant
-            new_restaurant = Restaurant(name, location, opening_time, rating, time_spent)
+            name, location, rating = restaurant[1], (float(restaurant[5]), float(restaurant[6])), int(restaurant[7])
+            opening_time = get_opening_times(restaurant[9:23])
+            new_restaurant = Restaurant(name, location, opening_time, rating)
             city_graph.add_vertex(new_restaurant)
 
         # add subway vertices
@@ -239,55 +243,22 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
     return city_graph
 
 
-def add_landmarks(graph: CityLocations, landmark: list) -> None:
+def get_opening_times(times: list) -> dict:
     """Adds the landmarks to the graph"""
     # 1 = name, 5 = lat, 6 = lon, 8-21 = opening times (sun-open, sun-close,..), 22 = rating
     operation_times = {}
+    days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-    if landmark[8] == 'N/A':
-        operation_times['Sunday'] = None
-    else:
-        operation_times['Sunday'] = (time(hour=int(landmark[8][:2]), minute=int(landmark[8][2:])),
-                                     time(hour=int(landmark[9][:2]), minute=int(landmark[9][2:])))
-    if landmark[10] == 'N/A':
-        operation_times['Monday'] = None
-    else:
-        operation_times['Monday'] = (time(hour=int(landmark[10][:2]), minute=int(landmark[10][2:])),
-                                     time(hour=int(landmark[11][:2]), minute=int(landmark[11][2:])))
+    for i in range(0, 7):
 
-    if landmark[12] == 'N/A':
-        operation_times['Tuesday'] = None
-    else:
-        operation_times['Tuesday'] = (time(hour=int(landmark[12][:2]), minute=int(landmark[12][2:])),
-                                      time(hour=int(landmark[13][:2]), minute=int(landmark[13][2:])))
+        if times[i * 2] == 'N/A':
+            operation_times[days[i]] = None
+        else:
+            operation_times[days[i]] = (time(hour=int(times[i * 2][:2]), minute=int(times[i * 2][2:])),
+                                        time(hour=int(times[i * 2+ 1][:2]), minute=int(times[i * 2 + 1][2:])))
 
-    if landmark[14] == 'N/A':
-        operation_times['Wednesday'] = None
-    else:
-        operation_times['Wednesday'] = (time(hour=int(landmark[14][:2]), minute=int(landmark[14][2:])),
-                                        time(hour=int(landmark[15][:2]), minute=int(landmark[15][2:])))
+    return operation_times
 
-    if landmark[16] == 'N/A':
-        operation_times['Thursday'] = None
-    else:
-        operation_times['Thursday'] = (time(hour=int(landmark[16][:2]), minute=int(landmark[16][2:])),
-                                       time(hour=int(landmark[17][:2]), minute=int(landmark[17][2:])))
-
-    if landmark[18] == 'N/A':
-        operation_times['Friday'] = None
-    else:
-        operation_times['Friday'] = (time(hour=int(landmark[18][:2]), minute=int(landmark[18][2:])),
-                                     time(hour=int(landmark[19][:2]), minute=int(landmark[19][2:])))
-
-    if landmark[20] == 'N/A':
-        operation_times['Saturday'] = None
-    else:
-        operation_times['Saturday'] = (time(hour=int(landmark[20][:2]), minute=int(landmark[20][2:])),
-                                       time(hour=int(landmark[21][:2]), minute=int(landmark[21][2:])))
-
-    new_landmark = Landmark(landmark[1], (float(landmark[5]), float(landmark[6])),
-                            operation_times, landmark[22])
-    graph.add_vertex(new_landmark)
 
 
 def load_subway_graph(subway_file: str, subway_lines_file: str) -> SubwayLines:
@@ -327,6 +298,11 @@ def load_subway_graph(subway_file: str, subway_lines_file: str) -> SubwayLines:
 
     return subway_graph
 
+
+# LANDMARK = 'data/paris-attraction-final.csv'
+# RESTAURANTS = 'data/paris-restaurant-organized-final.csv'
+# SUBWAYS = 'data/paris_metro_stations.csv'
+# HOTEL = Hotel('Hôtel Ritz Paris', (48.86809869999999, 2.328893199999999), True)
 
 # if __name__ == "__main__":
     # import doctest
