@@ -1,6 +1,3 @@
-"""This module contains functions that choose the locations this trip will visit.
-This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
-"""
 from __future__ import annotations
 from graphs import *
 import datetime
@@ -15,7 +12,7 @@ def choose_locations(maps: CityLocations, hotel: str,
                      planned_activities: list, leave: datetime, return_time: datetime) -> list:
     """Finds locations to fill the schedule with.
     """
-    final_plan = []
+
     diff = MIDDAY - leave
     time_slots = int((diff.seconds / 60)/60)
     diff2 = return_time - (MIDDAY + datetime.timedelta(hours=1))
@@ -108,6 +105,7 @@ def filter_locations(locations: list[Restaurant or Landmark], slots: int) -> lis
     """
     locations.sort(key=helper_sort, reverse=True)
     final = locations[:slots]
+    del locations[:slots]
     return final
 
 
