@@ -4,7 +4,7 @@ locations they want to visit.
 
 This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
 """
-import tkinter  # FIXME: it's better not to use the asterisk, just import tkinter -PyTA
+import tkinter
 from tkinter.ttk import Combobox
 import datetime
 
@@ -16,17 +16,16 @@ class PopUp:
     # FIXME: PyTA is complaining that you did not annotate the instance attributes. I'm not sure
     #  if these are instance attributes. It's also complaining that there are too many.
 
-    def __init__(self, win: tkinter.Tk, hotel_options: tuple):  # TODO add return type annotation
+    def __init__(self, win: tkinter.Tk, hotel_options: tuple) -> None:
         self.lbl1 = tkinter.Label(win, text='Hotel')
         self.lbl2 = tkinter.Label(win, text='Leave time')
         self.lbl3 = tkinter.Label(win, text='Return time')
         self.lbl4 = tkinter.Label(win, text='Locations')
-        # TODO: add day range
 
         #  UI Scroll down options for hotel
         self.var = tkinter.StringVar()
         self.var.set("one")
-        self.data = hotel_options  # TODO: do we actually have hotel data points??
+        self.data = hotel_options
         self.cmmb = Combobox(win, values=self.data)
         self.cmmb.place(x=200, y=50)
 
@@ -53,38 +52,34 @@ class PopUp:
     def get_user_input(self) -> None:
         """Return a dictionary containing data inputted by the user, using a graphical user
         interface implemented using tkinter.
-        The returned dictionary will contain the keys 'hotel', 'days', 'leave', 'return',
+        The returned dictionary will contain the keys 'hotel', 'leave', 'return',
         'locations'.
             - 'hotel' contains the <name> of the hotel the user is staying at. It is selected from a
                 drop-down menu of a few select hotels from the dataset
-            - 'days' is the day range that the user is visiting for. It is a tuple of arrival and
-                departure times.
-            - 'leave' is the time the user prefers to leave the hotel. It is a datetime object
-            referring to a particular hour in the day.
+            - 'leave' is the time the user plans to leave the hotel. It is a datetime object
+            referring to a date and a particular hour in the day.
             - 'return' is the time the user prefers to return to the hotel. It is a datetime object
-                referring to a particular hour in the day. It should be after 'leave' time.
+                referring to a date and a particular hour in the day. It is after 'leave' time.
             - 'locations' contains a list of <names> of locations the user wants to visit. It is
                 optional, and if the user does not enter anything it is an empty list.
         """
-        # TODO update docstring
         hotel = self.cmmb.get()
         leave_raw = self.t1.get()
-        # FIXME: leave and return refer to hours of the day the user wants to be outside
         dt_tuple_leave = tuple([int(x) for x in leave_raw[:10].split('-')]) + tuple(
             [int(x) for x in leave_raw[11:].split(':')])
-        datetimeobj1 = datetime.datetime(*dt_tuple_leave)  # FIXME: should be datetime.time
+        datetimeobj1 = datetime.datetime(*dt_tuple_leave)
 
         returns_raw = self.t2.get()
         dt_tuple_return = tuple([int(x) for x in returns_raw[:10].split('-')]) + tuple(
             [int(x) for x in returns_raw[11:].split(':')])
-        datetimeobj2 = datetime.datetime(*dt_tuple_return)  # FIXME: should be datetime.time
+        datetimeobj2 = datetime.datetime(*dt_tuple_return)
 
         locations_raw = self.t3.get()
         loc = locations_raw.split()
 
-        # TODO: add day range
         # TODO: change format to DD-MM-YYYY
         # TODO check if return > leave
+        # TODO: some way to indicate that locations is optional and the date format for user
 
         input_dict = {
             'hotel': hotel,
