@@ -43,7 +43,7 @@ def build_schedule(path: list[Location], start: datetime, end: datetime) -> list
     Preconditions:
         - the only hotel in path is at the start/end
     """
-    locations_to_visit = path[1:]  # TODO hotel at end?
+    locations_to_visit = path[1:-1]  # remove the hotel from path
     schedule = []
 
     for location in locations_to_visit:
@@ -52,13 +52,15 @@ def build_schedule(path: list[Location], start: datetime, end: datetime) -> list
         schedule.append(new_time_block)
 
     # if we overflow beyond the planned time
+    altered = set()
+
     while schedule[-1].end_time > end:
-        schedule = fix_schedule(schedule)
+        schedule, altered = fix_schedule(schedule, altered)
 
     return schedule
 
 
-def fix_schedule(schedule: list[TimeBlock]) -> list[TimeBlock]:
+def fix_schedule(schedule: list[TimeBlock], altered: set) -> tuple[list[TimeBlock], set]:
     """"Return a fixed copy of the schedule accounting for if we cross the inputted return time.
     This is done by reducing time spent at the lowest rated location.
     """
@@ -68,14 +70,16 @@ def fix_schedule(schedule: list[TimeBlock]) -> list[TimeBlock]:
     lowest_index = 0
 
     for i in range(0, len(schedule)):
-        if schedule[i].location_visited.rating < schedule[lowest_index].location_visited.rating:
-            lowest_index = i
+        if schedule[i] not in altered:
+            if schedule[i].location_visited.rating < schedule[lowest_index].location_visited.rating:
+                lowest_index = i
 
     # reduce time spent there by 50%
-    # FIXME: what happens when time_spent // 2 becomes really small?
     start = schedule[lowest_index].start_time
     end = start + schedule[lowest_index].location_visited.time_spent // 2
+
     fixed_schedule[lowest_index] = TimeBlock(start, schedule[lowest_index].location_visited, end)
+    altered.add(fixed_schedule[lowest_index])
 
     # shift the rest of the schedule
     for j in range(lowest_index + 1, len(schedule)):
@@ -84,7 +88,7 @@ def fix_schedule(schedule: list[TimeBlock]) -> list[TimeBlock]:
 
         end = fixed_schedule[j].end_time
 
-    return fixed_schedule
+    return (fixed_schedule, altered)
 
 # uncomment this when you want
 # if __name__ == "__main__":
