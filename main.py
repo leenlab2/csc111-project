@@ -3,28 +3,41 @@
 This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
 """
 import input
+from location import Hotel
 import graphs
 import choose_locations
 import find_path
 import schedule
+import csv
 
 
 if __name__ == "__main__":
+    # get hotels
+    hotels = {}
+    with open('data/paris-hotel.csv') as hotel_file:
+        hotel_reader = csv.reader(hotel_file)
+
+        for row in hotel_reader:
+            new_hotel = Hotel(row[0], (float(row[3]), float(row[4])))
+            hotels[row[0]] = new_hotel
+
     # user input
-    hotels = ("one", "two", "three", "four")  # TODO: get hotel data
-    win_popup = input.open_input_window(hotels)
+    hotel_names = tuple(hotels.keys())
+    win_popup = input.open_input_window(hotel_names)
     user_input = win_popup.user_input
 
     # process input
-    chosen_hotel = user_input['hotel']  # TODO: get hotel
+    chosen_hotel = hotels[user_input['hotel']]
     planned_activities = user_input['locations']
     leave = user_input['leave']
     return_time = user_input['return']
 
     # load graphs
-    city_graph = graphs.load_city_graph('paris-attraction-final.csv', 'restaurant',
-                                        'paris_metro_stations.csv', chosen_hotel)
-    subway_graph = graphs.load_subway_graph('paris_metro_stations.csv', 'paris_metro_lines.csv')
+    city_graph = graphs.load_city_graph('data/paris-attraction-final.csv',
+                                        'data/paris-restaurant-organized-final.csv',
+                                        'data/paris_metro_stations.csv', chosen_hotel)
+    subway_graph = graphs.load_subway_graph('data/paris_metro_stations.csv',
+                                            'data/paris_metro_lines.csv')
 
     # choose trip locations
     chosen_locations = choose_locations.choose_locations(city_graph, chosen_hotel,

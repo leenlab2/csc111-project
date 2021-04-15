@@ -1,5 +1,9 @@
+"""This module contains functions that choose the locations this trip will visit.
+
+This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
+"""
 from __future__ import annotations
-from graphs import *
+from graphs import *  # FIXME
 import datetime
 
 DAY_TRANSLATION = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday',

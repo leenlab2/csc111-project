@@ -73,7 +73,7 @@ class Hotel(Location):
     Instance Attributes:
         - staying: whether the user is staying at this hotel
     """
-    staying: bool
+    staying: bool = False
 
 
 @dataclass

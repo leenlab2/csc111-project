@@ -119,9 +119,9 @@ class CityLocations(Graph):
             - kind in {'', 'Landmark', 'Restaurant', 'SubwayStation'}
         """
         if kind is not None:
-            return {v.item for v in self._vertices.values() if isinstance(v.item, kind)}
+            return {v.location for v in self._vertices.values() if isinstance(v.location, kind)}
         else:
-            return set(self._vertices.keys())
+            return {v.location for v in self._vertices.values()}
 
 
 class SubwayLines(Graph):
@@ -132,9 +132,9 @@ class SubwayLines(Graph):
     """
 
     def get_all_vertices(self) -> set:
-        """Return a set of all vertex items in this graph.
+        """Return a set of all Location objects of vertices in this graph.
         """
-        return set(self._vertices.keys())
+        return {v.location for v in self._vertices.values()}
 
 
 def get_distance(l1: Location, l2: Location) -> float:
