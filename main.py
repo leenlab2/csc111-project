@@ -31,7 +31,6 @@ if __name__ == "__main__":
     # process input
     print('Processing user input....')
     chosen_hotel = hotels[user_input['hotel']]
-    planned_activities = user_input['locations']
     leave = user_input['leave']
     return_time = user_input['return']
 
@@ -47,7 +46,7 @@ if __name__ == "__main__":
     # choose trip locations
     print('Choosing locations to visit....')
     chosen_locations = choose_locations.choose_locations(city_graph, chosen_hotel,
-                                                         planned_activities, leave, return_time)
+                                                         leave, return_time)
 
     # find path
     print('Finding route....')
