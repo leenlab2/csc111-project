@@ -1,4 +1,6 @@
-"""This module cleans the data about how the subway stations are connected."""
+"""This module contains functions that consolidate data about how subway stations are linked.
+This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
+"""
 import csv
 
 
