@@ -33,8 +33,6 @@ class PopUp:
         self.t2 = tkinter.Entry()
 
         #  UI Button customization
-        btn1 = tkinter.Button(win, text='Send preferences')
-
         lbl1.place(x=100, y=50)
         self.t1.place(x=200, y=100)
         lbl2.place(x=100, y=100)
@@ -68,9 +66,7 @@ class PopUp:
             [int(x) for x in returns_raw[11:].split(':')])
         datetimeobj2 = datetime.datetime(*dt_tuple_return)
 
-        # TODO: change format to DD-MM-YYYY
         # TODO check if return > leave
-        # TODO: some way to indicate that locations is optional and the date format for user
 
         input_dict = {
             'hotel': hotel,

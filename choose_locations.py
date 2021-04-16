@@ -36,34 +36,43 @@ def choose_locations(maps: CityLocations, hotel: Hotel, leave: datetime, return_
 
     # ACCUMULATOR: contains the chosen locations
     final_plan = []
+    curr_time = leave
+    end_time = curr_time + datetime.timedelta(hours=2)
+    curr_location = hotel
 
     if before_noon_diff.seconds > 0:
         # find nearby open locations
-        final_plan.extend(choose_activities_timeslot(hotel, maps, 20, leave, MIDDAY))
+        print('Gathering locations for morning....')
+        while curr_time.time() < MIDDAY.time():
+            final_plan.extend(choose_activities_timeslot(curr_location, maps, 2,
+                                                         curr_time, end_time, final_plan))
+            curr_time, end_time = end_time, (end_time + datetime.timedelta(hours=2))
+            curr_location = final_plan[-1]
+
+        if final_plan == []:
+            raise Exception('No open locations')
 
         # find a restaurant for lunch
-        restaurants = find_restaurants(final_plan[-1], maps, 3, set())
-        final_plan.extend(filter_locations_rating(restaurants, 1))
+        print('Finding a restaurant....')
+        restaurants = find_restaurants(final_plan[-1], maps, 2, [])
+        final_plan.extend(filter_locations_rating(restaurants, 1, final_plan))
 
         curr_time = MIDDAY + datetime.timedelta(hours=1)
         curr_location = final_plan[-1]
-    else:
-        curr_time = leave
-        curr_location = hotel
 
+    print('Gathering locations for afternoon....')
     # add locations for the rest of the day using the found open locations
-    final_plan.extend(choose_activities_timeslot(curr_location, maps, 20, curr_time, return_time))
+    while curr_time.time() < return_time.time():
+        final_plan.extend(choose_activities_timeslot(curr_location, maps, 2,
+                                                     curr_time, return_time, final_plan))
+        curr_time, end_time = end_time, end_time + datetime.timedelta(hours=2)
+        curr_location = final_plan[-1]
 
     return final_plan
 
 
-def planned_locations_from_input(location_inputs: list[str], maps: CityLocations) -> list[Location]:
-    """Return a list of location objects consisting of places the user would like to visit."""
-    return [maps.get_vertex_str(location_input).location for location_input in location_inputs]
-
-
 def find_open_locations(start: Location, maps: CityLocations, distance: int,
-                        starting_time: datetime, return_time: datetime, visited: set) -> list:
+                        starting_time: datetime, return_time: datetime, visited: list) -> list:
     """Returns all landmarks on a radius of <distance> nodes that are currently open.
     """
     # ACCUMULATOR: keeps track of recommended locations to visit
@@ -81,18 +90,19 @@ def find_open_locations(start: Location, maps: CityLocations, distance: int,
         return []
     else:
         # add current node to visited set
-        visited.add(start)
+        visited.append(start)
 
         # the root node is a hotel and does not need to be added here, so check neighbours
         for n in neighbours:
-            if n not in visited:
+            if n not in visited and isinstance(n.location, Landmark):
                 # if there is an attraction adjacent that is open that day
-                if isinstance(n, Landmark) and start.opening_times[day] is not None:
-                    open_time = start.opening_times[day][0]
-                    close_time = start.opening_times[day][1]
+                if n.location.opening_times[day] is not None:
+                    open_time = n.location.opening_times[day][0]
+                    close_time = n.location.opening_times[day][1]
                     # if it's open now, add to list
-                    if open_time <= starting_time.time() and return_time.time() <= close_time:
-                        recommended.append(start)
+                    if open_time <= starting_time.time() <= close_time or \
+                            starting_time.time() <= open_time <= return_time.time():
+                        recommended.append(n.location)
 
                 # recurse over the neighbours
                 find_open_locations(n.location, maps, distance - 1,
@@ -101,7 +111,7 @@ def find_open_locations(start: Location, maps: CityLocations, distance: int,
     return recommended
 
 
-def find_restaurants(start: Location, maps: CityLocations, distance: int, visited: set)\
+def find_restaurants(start: Location, maps: CityLocations, distance: int, visited: list)\
         -> list[Restaurant]:
     """Returns a list of the nearest restaurants.
     """
@@ -117,7 +127,7 @@ def find_restaurants(start: Location, maps: CityLocations, distance: int, visite
         return []
     else:
         # keep track of visited vertices
-        visited.add(start)
+        visited.append(start)
 
         # if current vertex is a restaurant, return it
         if isinstance(start, Restaurant):
@@ -131,7 +141,8 @@ def find_restaurants(start: Location, maps: CityLocations, distance: int, visite
     return restaurants
 
 
-def filter_locations_rating(locations: list[Restaurant or Landmark], slots: int) -> list:
+def filter_locations_rating(locations: list[Restaurant or Landmark], slots: int, chosen: list)\
+        -> list:
     """Return list of locations with best ratings from the given dictionary.
 
     slots represents an estimate of how much time is left in that timeslot, used to limit the amount
@@ -141,21 +152,29 @@ def filter_locations_rating(locations: list[Restaurant or Landmark], slots: int)
     locations.sort(key=lambda e: e.rating, reverse=True)
 
     # select enough to fill the timeslot
-    final = locations[:slots]
-    del locations[:slots]
+    final = []
+    i = 0
+
+    while len(final) < slots:
+        if locations[i] not in chosen:
+            final.append(locations[i])
+            i += 1
+        else:
+            i += 1
+
     return final
 
 
 def choose_activities_timeslot(start: Location, maps: CityLocations, distance: int,
-                               starting_time: datetime, end_time: datetime) -> list:
+                               starting_time: datetime, end_time: datetime, chosen: list) -> list:
     """Returns a list of chosen locations for this particular timeslot."""
     # find nearby open locations
-    open_locations = find_open_locations(start, maps, distance, starting_time, end_time, set())
+    open_locations = find_open_locations(start, maps, distance, starting_time, end_time, [])
 
-    time_range = starting_time - end_time
-    slots = time_range.seconds // 3600
+    time_range = end_time - starting_time
+    slots = time_range.seconds // 7200
 
     # get the highest rated locations
-    chosen_locations = filter_locations_rating(open_locations, slots)
+    chosen_locations = filter_locations_rating(open_locations, slots, chosen)
 
     return chosen_locations

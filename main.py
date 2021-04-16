@@ -15,7 +15,7 @@ if __name__ == "__main__":
     # get hotels
     print('Retrieving hotels....')
     hotels = {}
-    with open('data/paris-hotel.csv') as hotel_file:
+    with open('data/paris-hotel.csv', encoding='utf-8') as hotel_file:
         hotel_reader = csv.reader(hotel_file)
 
         for row in hotel_reader:

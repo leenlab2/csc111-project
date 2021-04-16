@@ -86,7 +86,7 @@ class SubwayStation(Location):
     Representation Invariants:
         - datetime.timedelta(0) <= self.time_spent <= datetime.timedelta(hours=24)
     """
-    time_spent: datetime.timedelta = datetime.timedelta(minutes=15)
+    time_spent: datetime.timedelta = datetime.timedelta(minutes=5)
 
 
 if __name__ == "__main__":

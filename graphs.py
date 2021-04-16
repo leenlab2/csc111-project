@@ -141,10 +141,10 @@ class SubwayLines(Graph):
         - all(isinstance(self._vertices[v].item, SubwayStation) for v in self._vertices)
     """
 
-    def get_all_vertices(self) -> set:
+    def get_all_vertices(self) -> list:
         """Return a set of all Location objects of vertices in this graph.
         """
-        return {v.location for v in self._vertices.values()}
+        return [v.location for v in self._vertices.values()]
 
 
 def get_distance(l1: Location, l2: Location) -> float:
@@ -196,8 +196,9 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
     # initialize the graph
     city_graph = CityLocations()
 
-    with open(landmarks_file) as landmarks, open(restaurants_file) as restaurants, \
-            open(subway_file) as subways:
+    with open(landmarks_file, encoding='utf-8') as landmarks,\
+            open(restaurants_file, encoding='utf-8') as restaurants, \
+            open(subway_file, encoding='utf-8') as subways:
         # csv readers
         landmarks_reader = csv.reader(landmarks)
         restaurants_reader = csv.reader(restaurants)
@@ -205,7 +206,7 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
 
         # TODO create Location objects, adjust according to dataset
         # add landmark vertices
-
+        print('Adding vertices....')
         for landmark in landmarks_reader:
             operation_times = get_opening_times(landmark[8:22])
             new_landmark = Landmark(landmark[1], (float(landmark[5]), float(landmark[6])),
@@ -226,17 +227,19 @@ def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str
             city_graph.add_vertex(new_subway)
 
         # add hotel
+        hotel.staying = True
         city_graph.add_vertex(hotel)
         city_graph.hotel = hotel
 
         # add edges
+        print('Adding edges by geographical proximity....')
         vertices = list(city_graph.get_all_vertices())
         for i in range(0, len(vertices)):
             for j in range(i + 1, len(vertices)):
                 assert vertices[i] != vertices[j]
 
                 d = get_distance(vertices[i], vertices[j])
-                if d <= 1000:
+                if d <= 1500:
                     city_graph.add_edge(vertices[i], vertices[j])
         # TODO improve efficiency
 
@@ -260,7 +263,6 @@ def get_opening_times(times: list) -> dict:
     return operation_times
 
 
-
 def load_subway_graph(subway_file: str, subway_lines_file: str) -> SubwayLines:
     """Return a graph representing the subway network of the city.
 
@@ -273,7 +275,8 @@ def load_subway_graph(subway_file: str, subway_lines_file: str) -> SubwayLines:
     # initialize the graph
     subway_graph = SubwayLines()
 
-    with open(subway_file) as subways, open(subway_lines_file) as lines:
+    with open(subway_file, encoding='utf-8') as subways,\
+            open(subway_lines_file, encoding='utf-8') as lines:
         # csv reader
         subway_reader = csv.reader(subways)
         lines_reader = csv.reader(lines)

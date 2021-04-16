@@ -25,17 +25,21 @@ def find_path(chosen_locations: list[Location], city_graph: CityLocations,
     for location in locations_to_visit:
         # if next location is adjacent, add to list
         if city_graph.adjacent(prev, location):
+            print(location.name + 'is close enough to walk to')
             path.append(location)
         else:
+            print(location.name + 'is not close enough to walk to, finding nearest subways...')
             # find subway closest to prev
-            starting_station = find_closest_subway(prev, city_graph, subway_graph)
+            starting_station = find_closest_subway(prev, city_graph, [])
+            print('Closest subway to '+prev.name+' is '+starting_station.name)
             # find subway closest to location
-            end_station = find_closest_subway(location, city_graph, subway_graph)
+            end_station = find_closest_subway(location, city_graph, [])
+            print('Closest subway to ' + location.name + ' is ' + end_station.name)
 
             # find path between those stations
             # keep track of how far away a certain vertex is (as number of edges)
-            distances = {starting_station: 0}
-            station_path = find_subway_path(starting_station, end_station, distances, set(),
+            distances = {starting_station.name: 0}
+            station_path = find_subway_path(starting_station, end_station, distances, [],
                                             subway_graph)
 
             # the graph should be connected, but throw an exception if something went wrong
@@ -46,10 +50,12 @@ def find_path(chosen_locations: list[Location], city_graph: CityLocations,
             path += station_path
             path.append(location)
 
+        prev = location
+
     return path
 
 
-def find_closest_subway(location: Location, city_graph: CityLocations, subway_graph: SubwayLines)\
+def find_closest_subway(location: Location, city_graph: CityLocations, visited: list)\
         -> SubwayStation:
     """Return the subway station that is closest to the given location.
 
@@ -58,50 +64,26 @@ def find_closest_subway(location: Location, city_graph: CityLocations, subway_gr
     """
     # if there is a subway station adjacent to it, return that
     neighbors = city_graph.get_neighbors(location)
+    visited.append(location)
+    potential_closest = []
+
     for neighbor in neighbors:
-        if isinstance(neighbor, SubwayStation):
-            return neighbor
+        if neighbor.location not in visited:
+            if isinstance(neighbor.location, SubwayStation):
+                return neighbor.location
 
-    # else find the nearest subway station
-    # pick starting station
-    starter = list(subway_graph.get_all_vertices())[0]
-    nearest = estimate_nearest_subway(location, starter, set(), subway_graph)
-    return nearest
+            potential_closest.append(find_closest_subway(neighbor.location, city_graph, visited))
 
+    closest = potential_closest[0]
+    for station in potential_closest:
+        if get_distance(station, location) < get_distance(closest, location):
+            closest = station
 
-def estimate_nearest_subway(location: Location, starter: SubwayStation, visited: set[SubwayStation],
-                            subway_graph: SubwayLines) -> SubwayStation:
-    """Return a station that is relatively close to the chosen location by traversing the graph.
-
-    Iterates of the neighbours of starter to find the closest one to location, and recurses.
-
-    Precondition:
-        - starter in subway_graph.get_all_vertices()
-        - there are no subway stations adjacent to location
-    """
-    # update visited
-    visited.add(starter)
-    starter_vertex = subway_graph.get_vertex(starter)
-
-    # ACCUMULATOR: keeps track of closest subway station so far
-    closest = starter
-
-    # iterate over its neighbours
-    for u in starter_vertex.neighbours:
-        if u not in visited:
-            # find the neighbour closest to the desired location
-            if get_distance(location, u.location) < get_distance(location, closest):
-                closest = u.location
-
-    # if no neighbour is closer, return
-    if closest == starter:
-        return closest
-    else:  # a neighbour is closer, so recurse on that neighbour
-        return estimate_nearest_subway(location, closest, visited, subway_graph)
+    return closest
 
 
 def find_subway_path(subway1: SubwayStation, subway2: SubwayStation, distances: dict,
-                     visited: set[SubwayStation], subway_graph: SubwayLines)\
+                     visited: list[SubwayStation], subway_graph: SubwayLines)\
         -> Optional[list[SubwayStation]]:
     """Return the shortest subway route between the given two stations, starting from subway1
     until subway2. Uses a variation of Dijkstra's shortest path algorithm.
@@ -115,23 +97,29 @@ def find_subway_path(subway1: SubwayStation, subway2: SubwayStation, distances: 
 
     if subway1 == subway2:
         return path
+    elif subway_graph.adjacent(subway1, subway2):
+        return path + [subway2]
     else:
         # keep track of visited vertices
-        new_visited = visited.union({subway1})
+        new_visited = visited.copy()
+        new_visited.append(subway1)
 
         # update the distances dictionary
-        reassign_distances(distances, subway1, subway_graph, new_visited)
+        reassign_distances(distances, subway1, subway2, subway_graph, new_visited)
 
         # pick the shortest step
         neighbour_stations = sort_by_distances(subway1, subway_graph, distances)
         shortest = neighbour_stations.pop()
 
-        # recurse on the shortest vertex
-        rest_of_path = find_subway_path(shortest, subway2, distances, new_visited, subway_graph)
+        rest_of_path = None
 
-        # keep trying each neighbour until you get a path
-        while rest_of_path is None and len(neighbour_stations) > 0:
-            shortest = neighbour_stations.pop()
+        while rest_of_path is None:
+            while shortest in new_visited and len(neighbour_stations) > 0:
+                shortest = neighbour_stations.pop()
+
+            if len(neighbour_stations) == 0 and shortest in new_visited:
+                return None
+
             rest_of_path = find_subway_path(shortest, subway2, distances, new_visited, subway_graph)
 
         if rest_of_path is not None:
@@ -141,23 +129,23 @@ def find_subway_path(subway1: SubwayStation, subway2: SubwayStation, distances: 
             return None
 
 
-def reassign_distances(distances: dict, subway: SubwayStation, subway_graph: SubwayLines,
-                       visited: set) -> None:
+def reassign_distances(distances: dict, subway1: SubwayStation, subway2: SubwayStation,
+                       subway_graph: SubwayLines, visited: list) -> None:
     """Updates the distances dictionary to reflect the shortest possible distances between the
     neighbours of subway and the original location. The distances are in number of edges.
     """
     # get the actual vertex represented by subway1 and its neighbours
-    subway1_vertex = subway_graph.get_vertex(subway)
+    subway1_vertex = subway_graph.get_vertex(subway1)
     neighbours = subway1_vertex.neighbours
 
     # iterate over the neighbours of subway1 to find the shortest step
     for u in neighbours:
-        if u not in visited:
+        if u.location not in visited:
             # re-assign distance values
-            if u.location not in distances:
-                distances[u.location] = distances[subway] + 1
-            elif distances[subway] + 1 < distances[u.location]:
-                distances[u.location] = distances[subway] + 1
+            if u.item not in distances:
+                distances[u.item] = get_distance(u.location, subway2)
+            # elif distances[subway.name] + 1 < distances[u.item]:
+            #     distances[u.item] = distances[subway.name] + 1
 
 
 def sort_by_distances(subway: SubwayStation, subway_graph: SubwayLines, distances: dict)\
@@ -166,7 +154,7 @@ def sort_by_distances(subway: SubwayStation, subway_graph: SubwayLines, distance
     edges on the subway_graph."""
     neighbours = list(subway_graph.get_vertex(subway).neighbours)
     neighbour_stations = [n.location for n in neighbours]
-    neighbour_stations.sort(reverse=True, key=lambda item: distances[item])
+    neighbour_stations.sort(reverse=True, key=lambda item: distances[item.name])
     return neighbour_stations
 
 # uncomment this when you want
