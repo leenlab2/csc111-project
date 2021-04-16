@@ -15,7 +15,8 @@ COLORS = ['white', 'light grey', 'light green']
 
 
 def print_schedule(schedule: list[TimeBlock], win: tkinter.Canvas) -> None:
-    """A
+    """Creates a slot for every location, holding the time range and the 
+    name of the location.
     """
     x_value = 0
     y_value = 0
