@@ -5,7 +5,6 @@ requests == 2.25.1
 
 # creating graphs and classes
 csv == 1.0
-tkinter == ...
 
 #output
 maplotlib == 3.4.1
