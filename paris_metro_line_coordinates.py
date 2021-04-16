@@ -61,8 +61,7 @@ if __name__ == '__main__':
     import python_ta
     python_ta.check_all(config={
         'extra-imports': ['csv', 'requests'],
-        'allowed-io': ['clean_data_by_review_score', 'get_place_id', 'get_operating_times',
-                       'create_csv_file', 'retrieve_opening_times', 'get_metro_locations'],
+        'allowed-io': ['create_csv_file', 'get_metro_locations'],
         'max-line-length': 100,
         'disable': ['E1136']
     })
