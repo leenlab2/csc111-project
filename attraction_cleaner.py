@@ -1,4 +1,5 @@
-"""This module contains functions that sort through the tourpedia attractions dataset in order to compile our final attractions dataset.
+"""This module contains functions that sort through the tourpedia attractions dataset in order to 
+compile our final attractions dataset.
 This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
 """
 import csv
