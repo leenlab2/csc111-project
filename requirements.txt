@@ -1,7 +1,7 @@
 # Required Libraries for this project
 # reading databases and API
-requests==2.25.1
+requests~=2.25.1
 
 #output
-matplotlib==3.4.1
-numpy==1.20.2
+matplotlib~=3.4.1
+numpy~=1.20.2
