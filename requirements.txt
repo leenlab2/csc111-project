@@ -7,3 +7,6 @@ requests == 2.25.1
 csv == 1.0
 tkinter == ...
 
+#output
+maplotlib == 3.4.1
+numpy == 1.20.2
