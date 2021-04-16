@@ -1,5 +1,6 @@
-"""Cleans the restaurant data"""
-
+"""This module contains functions that retrieves restaurant data.
+This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
+"""
 
 import csv
 import requests
