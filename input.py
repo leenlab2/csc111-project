@@ -11,12 +11,15 @@ import datetime
 
 class PopUp:
     """ A Tk object used to preset the windows popup settings, display and functions.
+    Instance Attributes:
+        - user_input: A dictionary containing the input of the user, which can be filled
+        through the get_user_input function
     """
     user_input: dict
-    # FIXME: PyTA is complaining that you did not annotate the instance attributes. I'm not sure
-    #  if these are instance attributes. It's also complaining that there are too many.
 
     def __init__(self, win: tkinter.Tk, hotel_options: tuple) -> None:
+        """Initialize a pop up window with multiple graphical elements
+        """
         lbl1 = tkinter.Label(win, text='Hotel')
         lbl2 = tkinter.Label(win, text='Leave time')
         lbl3 = tkinter.Label(win, text='Return time')
@@ -54,20 +57,29 @@ class PopUp:
             referring to a date and a particular hour in the day.
             - 'return' is the time the user prefers to return to the hotel. It is a datetime object
                 referring to a date and a particular hour in the day. It is after 'leave' time.
+
+        Preconditions
+            - both 'leave' and 'return' must be datetime objects with the format
+             YYYY MMM DD - HH:MM:SS.MICROS
+             - 'return' > 'leave'
         """
+        # Retrieve data from the hotel
         hotel = self.cb.get()
+        # Retrieve strings for the date time objects
         leave_raw = self.t1.get()
+        # Converts string objects into datetime objects
         dt_tuple_leave = tuple([int(x) for x in leave_raw[:10].split('-')]) + tuple(
             [int(x) for x in leave_raw[11:].split(':')])
         datetimeobj1 = datetime.datetime(*dt_tuple_leave)
 
+        # Retrieve strings for the date time objects
         returns_raw = self.t2.get()
+        # Converts string objects into datetime objects
         dt_tuple_return = tuple([int(x) for x in returns_raw[:10].split('-')]) + tuple(
             [int(x) for x in returns_raw[11:].split(':')])
         datetimeobj2 = datetime.datetime(*dt_tuple_return)
 
-        # TODO check if return > leave
-
+        # Compiles the retirieved input into a dictionary
         input_dict = {
             'hotel': hotel,
             'leave': datetimeobj1,

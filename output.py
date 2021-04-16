@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib import image
 from matplotlib import pyplot as plt
 
-COLORS = ['white', 'black', 'red', 'cyan', 'yellow', 'green', 'blue']
+COLORS = ['white', 'red', 'cyan', 'yellow', 'green', 'blue']
 
 
 def print_schedule(schedule: list[TimeBlock], win: tkinter):
@@ -19,28 +19,35 @@ def print_schedule(schedule: list[TimeBlock], win: tkinter):
     """
     x_value = 0
     y_value = 0
-    space = 400//len(schedule)
+    space = 75
+
     for timeblock in schedule:
+        name = timeblock.location_visited.name
+        start = timeblock.start_time.strftime("%Y-%b-%d (%H:%M:%S.%f)")
+        end = timeblock.end_time.strftime("%Y-%b-%d (%H:%M:%S.%f)")
         color = random.choice(COLORS)
-        rectangle(x_value, y_value, space, color, win, timeblock.location_visited.name)
+        rectangle(x_value, y_value, space, color, win, name, start, end)
         y_value += space
 
 
-def rectangle(x: int, y: int, space: int, color: str, window: tkinter, text: str):
+def rectangle(x: int, y: int, space: int, color: str,
+              window: tkinter, name: str, start: str, end: str):
     """Creates a rectangle on a tkinter object with the specified parameters.
     """
-    window.create_rectangle(x, y, x + space, y + space, fill=color)
-    window.create_text((x, y), text=text)
+    window.create_rectangle(x, y, x + 400, y + space, fill=color)
+    window.create_text((x + 200, y + space / 4), text=name)
+    window.create_text((x + 200, y + (space / 4) * 2), text='Leave: ' + start)
+    window.create_text((x + 200, y + (space/4) * 3), text='Return: ' + end)
 
 
 def open_window_schedule(schedule: list[TimeBlock]) -> None:
     """Opens a window that allows the user to see their final schedule."""
     window = tkinter.Tk()
-    mywin = tkinter.Canvas(window, width=400, height=400)
+    mywin = tkinter.Canvas(window, width=400, height=len(schedule) * 100)
     mywin.pack()
     print_schedule(schedule, mywin)
     window.title("Today's Schedule")
-    window.geometry("400x300+10+10")
+    window.geometry("400x" + str(len(schedule) * 100) + "+10+10")
     window.mainloop()
 
 

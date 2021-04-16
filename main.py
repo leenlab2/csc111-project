@@ -9,6 +9,7 @@ import choose_locations
 import find_path
 import schedule
 import csv
+import output
 
 
 if __name__ == "__main__":
@@ -56,5 +57,7 @@ if __name__ == "__main__":
     print('Building schedule....')
     schedule = schedule.build_schedule(path, leave, return_time)
 
-    # TODO output
+    # display output
     print('Displaying output....')
+    output.show_path(path)
+    output.open_window_schedule(schedule)

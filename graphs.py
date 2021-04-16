@@ -178,6 +178,16 @@ def get_distance(l1: Location, l2: Location) -> float:
     return d
 
 
+##################################################################################################
+# Variables used for testing
+LANDMARK = 'data/paris-attraction-final.csv'
+RESTAURANTS = 'data/paris-restaurant-organized-final.csv'
+SUBWAYS = 'data/paris_metro_stations.csv'
+HOTEL = Hotel('Hôtel Ritz Paris', (48.86809869999999, 2.328893199999999), True)
+SUBWAYLINES = 'data/paris_metro_lines.csv'
+##################################################################################################
+
+
 def load_city_graph(landmarks_file: str, restaurants_file: str, subway_file: str, hotel: Hotel)\
         -> CityLocations:
     """Return a graph representing the locations in the city.
