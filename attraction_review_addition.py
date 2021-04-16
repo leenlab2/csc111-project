@@ -1,3 +1,4 @@
+"""Adds reviews to attractions"""
 import csv
 import requests
 
@@ -12,14 +13,14 @@ def get_review_scores(file_name: str) -> list:
         new_data = []
         for row in a:
             # The name of the location is in row[1]
-            id = row[7]
+            id_num = row[7]
 
             # Set up the start and end of the api call
             url_start = 'https://maps.googleapis.com/maps/api/place/details/json?place_id='
             url_end = '&fields=rating&key='
 
             # Combine the start, name, end, and api_key to create a workable url for the call
-            url = url_start + id + url_end + API_KEY
+            url = url_start + id_num + url_end + API_KEY
 
             # Using the requests library to fetch the data from the api
             a = requests.get(url)
@@ -62,3 +63,17 @@ def create_csv_file(row_list: list, new_file_name: str) -> None:
     with open(new_file_name, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(row_list)
+
+
+if __name__ == "__main__":
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': ['csv', 'requests'],
+        'allowed-io': ['get_review_scores', 'clean_reviews', 'create_csv_file'],
+        'max-line-length': 100,
+        'disable': ['E1136']
+    })
+
+    import python_ta.contracts
+    python_ta.contracts.DEBUG_CONTRACTS = False
+    python_ta.contracts.check_all_contracts()

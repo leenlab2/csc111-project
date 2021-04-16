@@ -6,20 +6,32 @@ This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Bece
 """
 import tkinter
 from tkinter.ttk import Combobox
+from tkinter import messagebox
 import datetime
 
 
 class PopUp:
     """ A Tk object used to preset the windows popup settings, display and functions.
+
     Instance Attributes:
+        - root: holds the Tk object representing the window
+        - cb: allows us to make the drop-down menu
+        - t1: the leave time input box
+        - t2: the return time input box
         - user_input: A dictionary containing the input of the user, which can be filled
         through the get_user_input function
     """
+    root: tkinter.Tk
+    cb: Combobox
+    t1: tkinter.Entry
+    t2: tkinter.Entry
     user_input: dict
 
     def __init__(self, win: tkinter.Tk, hotel_options: tuple) -> None:
         """Initialize a pop up window with multiple graphical elements
         """
+        self.root = win
+
         lbl1 = tkinter.Label(win, text='Hotel')
         lbl2 = tkinter.Label(win, text='Leave time')
         lbl3 = tkinter.Label(win, text='Return time')
@@ -33,7 +45,9 @@ class PopUp:
 
         #  UI  Text input options
         self.t1 = tkinter.Entry(bd=3)
+        self.t1.insert(0, 'YYYY-MM-DD HH:MM')
         self.t2 = tkinter.Entry()
+        self.t2.insert(0, 'YYYY-MM-DD HH:MM')
 
         #  UI Button customization
         lbl1.place(x=100, y=50)
@@ -88,6 +102,13 @@ class PopUp:
 
         self.user_input = input_dict
 
+        if datetimeobj1 >= datetimeobj2:
+            messagebox.showerror('Times incorrect',
+                                 'Please ensure that return time is after leaving time')
+        elif datetimeobj1.day != datetimeobj2.day:
+            messagebox.showerror('Times incorrect',
+                                 'Please ensure that return time is after leaving time')
+
 
 def open_input_window(hotels: tuple) -> PopUp:
     """Opens a window that allows the user to input their preferences."""
@@ -105,7 +126,12 @@ if __name__ == "__main__":
 
     import python_ta
     python_ta.check_all(config={
-        'extra-imports': ['tkinter', 'tkinter.ttk', 'datetime', 'python_ta.contracts'],
+        'extra-imports': ['tkinter', 'datetime', 'tkinter.ttk'],
+        'allowed-io': [],  # the names (strs) of functions that call print/open/input
         'max-line-length': 100,
-        'disable': ['R1705', 'C0200']
+        'disable': ['E1136']
     })
+
+    import python_ta.contracts
+    python_ta.contracts.DEBUG_CONTRACTS = False
+    python_ta.contracts.check_all_contracts()

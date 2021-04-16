@@ -3,9 +3,9 @@ transport.
 
 This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Becerra and Nada Eldin
 """
+from typing import Optional
 from location import Location, SubwayStation
 from graphs import CityLocations, SubwayLines, get_distance
-from typing import Optional
 
 
 def find_path(chosen_locations: list[Location], city_graph: CityLocations,
@@ -25,13 +25,13 @@ def find_path(chosen_locations: list[Location], city_graph: CityLocations,
     for location in locations_to_visit:
         # if next location is adjacent, add to list
         if city_graph.adjacent(prev, location):
-            print(location.name + 'is close enough to walk to')
+            print(location.name + ' is close enough to walk to')
             path.append(location)
         else:
-            print(location.name + 'is not close enough to walk to, finding nearest subways...')
+            print(location.name + ' is not close enough to walk to, finding nearest subways...')
             # find subway closest to prev
             starting_station = find_closest_subway(prev, city_graph, [])
-            print('Closest subway to '+prev.name+' is '+starting_station.name)
+            print('Closest subway to ' + prev.name + ' is ' + starting_station.name)
             # find subway closest to location
             end_station = find_closest_subway(location, city_graph, [])
             print('Closest subway to ' + location.name + ' is ' + end_station.name)
@@ -163,6 +163,16 @@ def sort_by_distances(subway: SubwayStation, subway_graph: SubwayLines, distance
     neighbour_stations.sort(reverse=True, key=lambda item: distances[item.name])
     return neighbour_stations
 
-# uncomment this when you want
-# if __name__ == "__main__":
-# TODO: check code with py_ta and doctests
+
+if __name__ == "__main__":
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': ['location', 'graphs'],
+        'allowed-io': ['find_path'],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 100,
+        'disable': ['E1136']
+    })
+
+    import python_ta.contracts
+    python_ta.contracts.DEBUG_CONTRACTS = False
+    python_ta.contracts.check_all_contracts()

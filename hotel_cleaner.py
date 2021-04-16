@@ -1,3 +1,4 @@
+"""Gets hotel data"""
 import csv
 import requests
 
@@ -46,6 +47,7 @@ def get_place_id(file_name: str) -> list:
 
 
 def get_coordinates(file_name: str) -> list:
+    """Adds coordinates to data"""
     with open(file_name) as file:
         a = csv.reader(file)
         new_data = []
@@ -88,5 +90,15 @@ def create_csv_file(row_list: list, new_file_name: str) -> None:
         writer.writerows(row_list)
 
 
+if __name__ == "__main__":
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': ['csv', 'requests'],
+        'allowed-io': ['get_place_id', 'get_coordinates', 'create_csv_file'],
+        'max-line-length': 100,
+        'disable': ['E1136']
+    })
 
-'https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJVSOS5FBv5kcRmaCCdrMCfk4&fields=geometry&key=AIzaSyDzbClENAzLX7NMPfTtJd-ALqvYtK3F7S8'
+    import python_ta.contracts
+    python_ta.contracts.DEBUG_CONTRACTS = False
+    python_ta.contracts.check_all_contracts()

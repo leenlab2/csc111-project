@@ -11,16 +11,6 @@ DAY_TRANSLATION = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday',
                    3: 'Thursday', 4: 'Friday', 5: 'Saturday',
                    6: 'Sunday'}
 
-# represents noon (12:00pm). The date was arbitrary, solely to match the datatype of inputs
-MIDDAY = datetime.datetime(2022, 12, 1, 12, 00, 00, 00)
-
-# TODO: remove bug-fixing variables
-START = datetime.datetime(2021, 4, 15, 8, 00, 00, 00)
-END = datetime.datetime(2021, 4, 15, 19, 00, 00, 00)
-
-START2 = datetime.datetime(2021, 4, 15, 13, 00, 00, 00)
-PLAN = ['Comptoir du sept', 'Le spicy home', 'Château of Vincennes']
-
 
 def choose_locations(maps: CityLocations, hotel: Hotel, leave: datetime, return_time: datetime)\
         -> list:
@@ -28,11 +18,13 @@ def choose_locations(maps: CityLocations, hotel: Hotel, leave: datetime, return_
     planned_activities, leave, and return_time are taken directly from the user input.
 
     This function splits the day into 2 parts: before noon and after noon.
-
-    # TODO more detailed description
     """
+    # represents noon (12:00pm). The date was arbitrary, solely to match the datatype of inputs
+    midday = datetime.datetime(leave.year, leave.month, leave.day, 12, 00, 00, 00)
+
     # time partition: from leaving hotel to noon
-    before_noon_diff = MIDDAY - leave
+    before_noon_diff = midday - leave
+    after_noon_diff = return_time - midday
 
     # ACCUMULATOR: contains the chosen locations
     final_plan = []
@@ -40,33 +32,34 @@ def choose_locations(maps: CityLocations, hotel: Hotel, leave: datetime, return_
     end_time = curr_time + datetime.timedelta(hours=2)
     curr_location = hotel
 
-    if before_noon_diff.seconds > 0:
+    if before_noon_diff.days == 0:
         # find nearby open locations
         print('Gathering locations for morning....')
-        while curr_time.time() < MIDDAY.time():
+        while curr_time.time() < midday.time():
             final_plan.extend(choose_activities_timeslot(curr_location, maps, 2,
                                                          curr_time, end_time, final_plan))
             curr_time, end_time = end_time, (end_time + datetime.timedelta(hours=2))
             curr_location = final_plan[-1]
 
         if final_plan == []:
-            raise Exception('No open locations')
+            raise Exception('No open locations. Insufficient data, try again')
 
         # find a restaurant for lunch
         print('Finding a restaurant....')
         restaurants = find_restaurants(final_plan[-1], maps, 2, [])
         final_plan.extend(filter_locations_rating(restaurants, 1, final_plan))
 
-        curr_time = MIDDAY + datetime.timedelta(hours=1)
+        curr_time = midday + datetime.timedelta(hours=1)
         curr_location = final_plan[-1]
 
-    print('Gathering locations for afternoon....')
-    # add locations for the rest of the day using the found open locations
-    while curr_time.time() < return_time.time():
-        final_plan.extend(choose_activities_timeslot(curr_location, maps, 2,
-                                                     curr_time, return_time, final_plan))
-        curr_time, end_time = end_time, end_time + datetime.timedelta(hours=2)
-        curr_location = final_plan[-1]
+    if after_noon_diff.days == 0:
+        print('Gathering locations for afternoon....')
+        # add locations for the rest of the day using the found open locations
+        while curr_time.time() < return_time.time():
+            final_plan.extend(choose_activities_timeslot(curr_location, maps, 2,
+                                                         curr_time, return_time, final_plan))
+            curr_time, end_time = end_time, end_time + datetime.timedelta(hours=2)
+            curr_location = final_plan[-1]
 
     return final_plan
 
@@ -178,3 +171,17 @@ def choose_activities_timeslot(start: Location, maps: CityLocations, distance: i
     chosen_locations = filter_locations_rating(open_locations, slots, chosen)
 
     return chosen_locations
+
+
+if __name__ == "__main__":
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': [],  # the names (strs) of imported modules
+        'allowed-io': [],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 100,
+        'disable': ['E1136']
+    })
+
+    import python_ta.contracts
+    python_ta.contracts.DEBUG_CONTRACTS = False
+    python_ta.contracts.check_all_contracts()

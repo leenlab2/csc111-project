@@ -1,3 +1,4 @@
+"""Cleans attractions file"""
 import csv
 import requests
 
@@ -81,36 +82,45 @@ def get_operating_times(file_name: str) -> list:
                 # from the ['periods'] key
                 operating_times = data['result']['opening_hours']['periods']
 
-                # Initializing the each day with a corresponding opening time and closing time
-                # 'o' stands for open and 'c' stands for close
-                o1, c1, o2, c2, o3, c3, o4, c4, o5, c5, o6, c6, o7, c7 = ['N/A'] * 14
-
-                # Iterate through the opening times, if there is data for either one of the days,
-                # change the corresponding opening time defined above
-                for day in operating_times:
-                    if day['open']['day'] == 0 and 'close' in day:
-                        o1, c1 = day['open']['time'], day['close']['time']
-                    elif day['open']['day'] == 1 and 'close' in day:
-                        o2, c2 = day['open']['time'], day['close']['time']
-                    elif day['open']['day'] == 2 and 'close' in day:
-                        o3, c3 = day['open']['time'], day['close']['time']
-                    elif day['open']['day'] == 3 and 'close' in day:
-                        o4, c4 = day['open']['time'], day['close']['time']
-                    elif day['open']['day'] == 4 and 'close' in day:
-                        o5, c5 = day['open']['time'], day['close']['time']
-                    elif day['open']['day'] == 5 and 'close' in day:
-                        o6, c6 = day['open']['time'], day['close']['time']
-                    elif day['open']['day'] == 6 and 'close' in day:
-                        o7, c7 = day['open']['time'], day['close']['time']
-                    else:
-                        print(row[0], day, ' --- ERROR NEED TO CHECK')
+                # Get opening times
+                timings = retrieve_opening_times(operating_times, row[0])
 
                 # Append the data into the new_data list
                 new_data.append([row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                                 o1, c1, o2, c2, o3, c3, o4, c4, o5, c5, o6, c6, o7, c7])
+                                 timings[0], timings[1], timings[2], timings[3], timings[4],
+                                 timings[5], timings[6], timings[7], timings[8], timings[9],
+                                 timings[10], timings[11], timings[12], timings[13]])
                 print(row[0])
 
         return new_data
+
+
+def retrieve_opening_times(operating_times: dict, place: str) -> list:
+    """Returns the opening times by parsing the data"""
+    # Initializing the each day with a corresponding opening time and closing time
+    timings = ['N/A'] * 14
+
+    # Iterate through the opening times, if there is data for either one of the days,
+    # change the corresponding opening time defined above
+    for day in operating_times:
+        if day['open']['day'] == 0 and 'close' in day:
+            timings[0], timings[1] = day['open']['time'], day['close']['time']
+        elif day['open']['day'] == 1 and 'close' in day:
+            timings[2], timings[3] = day['open']['time'], day['close']['time']
+        elif day['open']['day'] == 2 and 'close' in day:
+            timings[4], timings[5] = day['open']['time'], day['close']['time']
+        elif day['open']['day'] == 3 and 'close' in day:
+            timings[6], timings[7] = day['open']['time'], day['close']['time']
+        elif day['open']['day'] == 4 and 'close' in day:
+            timings[8], timings[9] = day['open']['time'], day['close']['time']
+        elif day['open']['day'] == 5 and 'close' in day:
+            timings[10], timings[11] = day['open']['time'], day['close']['time']
+        elif day['open']['day'] == 6 and 'close' in day:
+            timings[12], timings[13] = day['open']['time'], day['close']['time']
+        else:
+            print(place, day, ' --- ERROR NEED TO CHECK')
+
+    return timings
 
 
 def create_csv_file(row_list: list, new_file_name: str) -> None:
@@ -126,6 +136,16 @@ def create_csv_file(row_list: list, new_file_name: str) -> None:
         writer.writerows(row_list)
 
 
-# https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJN1t_tDeuEmsRUsoyG83frY4&fields=opening_hours/periods&key=AIzaSyDzbClENAzLX7NMPfTtJd-ALqvYtK3F7S8
+if __name__ == "__main__":
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': ['csv', 'requests'],
+        'allowed-io': ['get_place_id', 'get_operating_times', 'create_csv_file',
+                       'retrieve_opening_times'],
+        'max-line-length': 100,
+        'disable': ['E1136']
+    })
 
-# https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=Square%20Ulysse%20Trélat&inputtype=textquery&fields=place_id&key=AIzaSyDzbClENAzLX7NMPfTtJd-ALqvYtK3F7S8
+    import python_ta.contracts
+    python_ta.contracts.DEBUG_CONTRACTS = False
+    python_ta.contracts.check_all_contracts()

@@ -1,11 +1,7 @@
 # Required Libraries for this project
 # reading databases and API
-csv == 1.0
-requests == 2.25.1
-
-# creating graphs and classes
-csv == 1.0
+requests==2.25.1
 
 #output
-maplotlib == 3.4.1
-numpy == 1.20.2
+matplotlib==3.4.1
+numpy==1.20.2

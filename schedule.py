@@ -4,9 +4,9 @@ This file is Copyright (c) 2021 Leen Al Lababidi, Michael Rubenstein, Maria Bece
 """
 
 from __future__ import annotations
+from typing import Optional
 from datetime import datetime
 from location import Location, Landmark, Restaurant, SubwayStation
-from typing import Optional
 
 
 class TimeBlock:
@@ -72,13 +72,19 @@ def fix_schedule(schedule: list[TimeBlock], altered: set) -> tuple[list[TimeBloc
     fixed_schedule = schedule.copy()
 
     # find lowest rated location
-    lowest_index = len(altered)
+    lowest_index = None
 
     for i in range(0, len(schedule)):
-        if schedule[i].location_visited.name not in altered and not isinstance(
-                schedule[i].location_visited, SubwayStation):
-            if schedule[i].location_visited.rating < schedule[lowest_index].location_visited.rating:
+        if schedule[i].location_visited.name not in altered and \
+                not isinstance(schedule[i].location_visited, SubwayStation):
+            if lowest_index is None:
                 lowest_index = i
+            elif schedule[i].location_visited.rating < \
+                    schedule[lowest_index].location_visited.rating:
+                lowest_index = i
+
+    if lowest_index is None:
+        return fix_schedule(schedule, set())
 
     # reduce time spent there by 50%
     start = fixed_schedule[lowest_index].start_time
@@ -101,3 +107,13 @@ def fix_schedule(schedule: list[TimeBlock], altered: set) -> tuple[list[TimeBloc
         altered = set()
 
     return (fixed_schedule, altered)
+
+
+if __name__ == "__main__":
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': ['datetime', 'location'],
+        'allowed-io': ['build_schedule'],
+        'max-line-length': 100,
+        'disable': ['E1136']
+    })
