@@ -28,9 +28,13 @@ The columns used are as follows:
 ## 3. How to Run the Program
 ### 3.1 Running the Files For Main Program
 Simply run `main.py`, and an input pop-up window should open:
+
 ![image](https://user-images.githubusercontent.com/74102544/130708000-0b72f789-155d-4bca-b826-d4cb88b1ddf2.png)
+
 Choose a hotel from the drop down list. Input Leave time and Return time in YYYY-MM-DD HH:MM. They should occur on the same day, and an invalid date would cause an error message.
+
 ![image](https://user-images.githubusercontent.com/74102544/130708069-f0e1fbe7-5846-492d-8ec8-882e2d9c81b9.png)
+
 Click on Submit and **then on Close** for the program to upload the information inputted. If the input was invalid you need to click Submit again. Console messages should be printed displaying where in the process the program is. At the end, two pop ups will apear, a graph over a map, and a schedule. Rerun the program to generate another schedule.
 
 ![image](https://user-images.githubusercontent.com/74102544/130708184-374720b0-eab4-493b-b799-a10d8e3850b1.png)
